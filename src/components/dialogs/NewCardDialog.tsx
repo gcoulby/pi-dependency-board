@@ -11,7 +11,6 @@ export interface NewCardValues {
   owner?: string;
   estimate?: number;
   party?: string;
-  size: 's' | 'm' | 'l';
 }
 
 const SLOT_LABEL = { start: 'Start of sprint', end: 'End of sprint' } as const;
@@ -33,7 +32,6 @@ export function NewCardDialog({ cell, onConfirm, onCancel }: Props) {
   const [owner, setOwner] = useState(cell.laneId === EXTERNAL_LANE_ID ? '' : cell.laneId);
   const [estimate, setEstimate] = useState('');
   const [party, setParty] = useState('');
-  const [size, setSize] = useState<'s' | 'm' | 'l'>('m');
 
   const external = cell.laneId === EXTERNAL_LANE_ID;
   const laneName = external ? externalLabel : teams.find((t) => t.id === cell.laneId)?.name ?? '?';
@@ -45,7 +43,6 @@ export function NewCardDialog({ cell, onConfirm, onCancel }: Props) {
     onConfirm({
       title: title.trim(),
       typeId,
-      size,
       owner: owner || undefined,
       estimate: est !== undefined && Number.isFinite(est) ? est : undefined,
       party: external ? party.trim() || undefined : undefined,
@@ -104,25 +101,6 @@ export function NewCardDialog({ cell, onConfirm, onCancel }: Props) {
                   </button>
                 );
               })}
-            </div>
-          </div>
-
-          <div>
-            <label className={label}>Size</label>
-            <div className="flex gap-1.5">
-              {(['s', 'm', 'l'] as const).map((k) => (
-                <button
-                  key={k}
-                  onClick={() => setSize(k)}
-                  aria-pressed={size === k}
-                  className={[
-                    'w-9 py-1 rounded border text-[11px] font-mono uppercase transition-colors',
-                    size === k ? 'border-amber-400/60 text-amber-400 bg-amber-400/10' : 'border-[#30363d] text-[#8b949e] hover:border-[#484f58]',
-                  ].join(' ')}
-                >
-                  {k}
-                </button>
-              ))}
             </div>
           </div>
 

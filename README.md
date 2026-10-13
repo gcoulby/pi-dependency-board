@@ -18,14 +18,15 @@ Everything lives in a single `.piboard` file on your disk. No server, no cloud, 
 - **Start and end of sprint**: each sprint is split into two sub-columns by a barely-there divider, so you can place a card early or late in a sprint
 - **Typed, colour-coded cards**: Feature, Enabler, Spike, Tech debt, Risk, Milestone, Requirement and Dependency. Types are always shown as icon plus label, never colour alone. Add, recolour and reorder types per board
 - **Requirements and dependencies**: a Requirement is something a team needs; a Dependency is something someone provides to meet it
-- **Per-card size** (S, M, L) and a team owner on every card
-- **Dependency arrows** with three states (proposed, agreed, at-risk) and a schedule check: a thick red dashed line means the provider is scheduled after the card waiting on it. Same-sprint, same-slot dependencies are tagged, and cycles are listed. Nothing is ever blocked, only shown
+- **A team owner** on every card
+- **Straight dependency arrows**, joined bottom to top, with three states (proposed, agreed, at-risk) and a schedule check: a thick red dashed line means the provider is scheduled after the card waiting on it. Same-sprint, same-slot dependencies are tagged, and cycles are listed. Nothing is ever blocked, only shown
 - **Focus mode**: select a card to light up everything upstream and downstream of it
 - **Legend, team filters and an issues list** in the sidebar
 - **Search** with `/` or `Ctrl+K`, across titles, owners, tags, descriptions and, optionally, long-form documents
 - **Long-form card detail** in a BlockNote editor, loaded only when opened
 - **Optional AES-256-GCM encryption** with a passphrase
 - **Auto-save**, debounced, which never fires on pan or zoom
+- **draw.io export**: Export in the toolbar writes a `.drawio` file with the same lanes, columns, card positions, sizes and colours as the board, plus a simpler Mermaid flowchart
 - **Offline first**: zero network requests at runtime
 
 ---

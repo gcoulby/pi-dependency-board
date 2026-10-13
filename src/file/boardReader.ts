@@ -111,7 +111,6 @@ export function healBoard(
     }
     // 'mid' came from an earlier three-slot design; fold it into the start slot
     if (card.slot !== 'end') card.slot = undefined;
-    if (card.size !== undefined && card.size !== 's' && card.size !== 'm' && card.size !== 'l') card.size = undefined;
     if (card.owner !== undefined && !teamIds.has(card.owner)) {
       warn(`card ${card.id}: owner "${card.owner}" is not a team, cleared`);
       card.owner = undefined;

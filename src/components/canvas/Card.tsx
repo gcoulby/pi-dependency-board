@@ -21,7 +21,6 @@ export const Card = memo(({ data, selected }: NodeProps) => {
   const { card, type, dimmed, outCount, inCount, ownerName } = data as CardNodeData
   const style = cardTypeStyle(type?.colour ?? '#8b949e')
   const Icon = CARD_TYPE_ICONS[type?.icon ?? 'Layers'] ?? CARD_TYPE_ICONS.Layers
-  const size = card.size ?? 'm'
   const external = card.laneId === EXTERNAL_LANE_ID
   const hasDesc = Boolean(card.description?.trim())
   const hasAttachments = (card.attachments?.length ?? 0) > 0
@@ -29,8 +28,10 @@ export const Card = memo(({ data, selected }: NodeProps) => {
   return (
     <div className="relative w-full h-full transition-opacity duration-150 select-none" style={{ opacity: dimmed ? 0.22 : 1 }}>
       {/* Handles sit outside the clipped box, or their outer half is unreachable */}
-      <Handle type="target" position={Position.Left} id="in" />
-      <Handle type="source" position={Position.Right} id="out" />
+      <Handle type="source" position={Position.Top} id="top" />
+      <Handle type="source" position={Position.Bottom} id="bottom" />
+      <Handle type="source" position={Position.Left} id="left" />
+      <Handle type="source" position={Position.Right} id="right" />
     <div
       className="relative w-full h-full rounded overflow-hidden bg-[#161b22]"
       style={{
@@ -64,10 +65,10 @@ export const Card = memo(({ data, selected }: NodeProps) => {
           )}
         </div>
 
-        <div className={`mt-1 text-[12px] font-semibold text-[#e6edf3] leading-[15px] ${size === 's' ? 'line-clamp-1' : size === 'l' ? 'line-clamp-3 text-[13px] leading-[17px]' : 'line-clamp-2'}`}>{card.title}</div>
+        <div className="mt-1 text-[12px] font-semibold text-[#e6edf3] leading-[15px] line-clamp-2">{card.title}</div>
 
         <div className="flex-1" />
-        <div className={`flex items-center gap-1.5 min-w-0 text-[10px] text-[#8b949e] font-mono leading-none ${size === 's' ? 'hidden' : ''}`}>
+        <div className="flex items-center gap-1.5 min-w-0 text-[10px] text-[#8b949e] font-mono leading-none">
           {external && card.party && <span className="truncate text-[#c9d1d9] max-w-[96px]">{card.party}</span>}
           {ownerName && <span className="truncate max-w-[80px]">{ownerName}</span>}
           {card.estimate !== undefined && (

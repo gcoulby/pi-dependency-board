@@ -22,6 +22,7 @@ import { NewCardDialog, type NewCardValues } from './components/dialogs/NewCardD
 import { DependencyDialog } from './components/dialogs/DependencyDialog';
 import { BoardSettingsDialog } from './components/dialogs/BoardSettingsDialog';
 import { InfoPanel } from './components/dialogs/InfoPanel';
+import { ExportDialog } from './components/dialogs/ExportDialog';
 import { FileExplorer } from './components/dialogs/FileExplorer';
 // BlockNote is heavy and only needed when a card's detail is opened
 const ContentEditor = lazy(() => import('./components/editor/ContentEditor').then((m) => ({ default: m.ContentEditor })));
@@ -48,6 +49,7 @@ import {
   HelpCircle,
   Layers2,
   Archive,
+  FileOutput,
   Lock,
   Settings,
   Shapes,
@@ -89,12 +91,13 @@ interface ToolbarProps {
   onInfo: () => void;
   onFiles: () => void;
   onSettings: () => void;
+  onExport: () => void;
 }
 
 const toolbarBtn =
   'flex items-center gap-1.5 px-2 py-1 text-[11px] text-[#8b949e] hover:text-amber-400 transition-colors rounded hover:bg-[#1c2333]';
 
-function Toolbar({ onSearch, onFitView, onInfo, onFiles, onSettings }: ToolbarProps) {
+function Toolbar({ onSearch, onFitView, onInfo, onFiles, onSettings, onExport }: ToolbarProps) {
   const manifest = useFileStore((s) => s.manifest);
   return (
     <div className="h-10 bg-[#161b22] border-b border-[#30363d] flex items-center px-4 gap-2 shrink-0">
@@ -111,6 +114,9 @@ function Toolbar({ onSearch, onFitView, onInfo, onFiles, onSettings }: ToolbarPr
       <div className="h-4 w-px bg-[#30363d]" />
       <button onClick={onSearch} title="Search  /  or  Ctrl+K" className={toolbarBtn}>
         <Search size={12} /> Search
+      </button>
+      <button onClick={onExport} title="Export as Mermaid, for draw.io" className={toolbarBtn}>
+        <FileOutput size={12} /> Export
       </button>
       <button onClick={onFiles} title="Browse archive" className={toolbarBtn}>
         <Archive size={12} /> Files
@@ -161,6 +167,7 @@ function AppInner() {
   const [showInfo, setShowInfo] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showExport, setShowExport] = useState(false);
   const [editorCardId, setEditorCardId] = useState<string | null>(null);
   const [ctxMenu, setCtxMenu] = useState<CtxMenuState | null>(null);
   const [linkFromId, setLinkFromId] = useState<string | null>(null);
@@ -354,7 +361,6 @@ function AppInner() {
     const card = useCardStore.getState().addCard({
       title: values.title,
       typeId: values.typeId,
-      size: values.size === 'm' ? undefined : values.size,
       laneId: showNewCard.laneId,
       sprintId: showNewCard.sprintId,
       slot: showNewCard.slot === 'start' ? undefined : showNewCard.slot,
@@ -416,16 +422,6 @@ function AppInner() {
               onClick: () => state.updateCard(cardId, { typeId: t.id }),
             };
           }),
-        },
-        {
-          icon: <Maximize2 size={12} />,
-          label: 'Size',
-          onClick: () => {},
-          submenu: (['s', 'm', 'l'] as const).map((k) => ({
-            label: { s: 'Small', m: 'Medium', l: 'Large' }[k],
-            active: (card.size ?? 'm') === k,
-            onClick: () => state.updateCard(cardId, { size: k }),
-          })),
         },
         {
           icon: <Link2 size={12} />,
@@ -500,6 +496,7 @@ function AppInner() {
         onInfo={() => setShowInfo(true)}
         onFiles={() => setShowFiles(true)}
         onSettings={() => setShowSettings(true)}
+        onExport={() => setShowExport(true)}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -548,6 +545,8 @@ function AppInner() {
       {editingDependencyId && (
         <DependencyDialog dependencyId={editingDependencyId} onClose={() => useViewStore.getState().openDependency(null)} />
       )}
+
+      {showExport && <ExportDialog onClose={() => setShowExport(false)} />}
 
       {showSettings && <BoardSettingsDialog onClose={() => setShowSettings(false)} />}
 

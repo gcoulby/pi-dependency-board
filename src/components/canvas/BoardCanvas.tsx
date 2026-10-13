@@ -20,6 +20,7 @@ import type { Card as CardModel, CardId, CardType } from '../../types'
 import { CARD_H, CARD_W } from '../../board/constants'
 import { cardsInCell, cellAt, computeLayout, insertIndexAt, type Cell } from '../../board/layout'
 import { slotOf } from '../../board/slots'
+import { pickSides } from '../../board/edgeRoute'
 import { checkSchedule, downstream, upstream } from '../../board/dependencies'
 import { useBoardStore } from '../../store/boardStore'
 import { useCardStore } from '../../store/cardStore'
@@ -51,7 +52,6 @@ interface CachedNode {
   inCount: number
   outCount: number
   ownerName?: string
-  h: number
   node: Node
 }
 
@@ -134,7 +134,7 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
       const prev = nodeCache.current.get(card.id)
       if (
         prev && prev.card === card && prev.type === type && prev.x === pos.x && prev.y === pos.y &&
-        prev.dimmed === dimmed && prev.selected === selected && prev.inCount === inCount && prev.outCount === outCount && prev.ownerName === ownerName && prev.h === (layout.cardH[card.id] ?? CARD_H)
+        prev.dimmed === dimmed && prev.selected === selected && prev.inCount === inCount && prev.outCount === outCount && prev.ownerName === ownerName
       ) {
         next.set(card.id, prev)
         return prev.node
@@ -145,13 +145,13 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
         type: 'card',
         position: pos,
         // Sized through style so React Flow measures the DOM and keeps handle bounds up to date
-        style: { width: CARD_W, height: layout.cardH[card.id] ?? CARD_H },
+        style: { width: CARD_W, height: CARD_H },
         initialWidth: CARD_W,
-        initialHeight: layout.cardH[card.id] ?? CARD_H,
+        initialHeight: CARD_H,
         selected,
         data,
       }
-      next.set(card.id, { card, type, x: pos.x, y: pos.y, dimmed, selected, inCount, outCount, ownerName, h: layout.cardH[card.id] ?? CARD_H, node })
+      next.set(card.id, { card, type, x: pos.x, y: pos.y, dimmed, selected, inCount, outCount, ownerName, node })
       return node
     })
     nodeCache.current = next
@@ -167,7 +167,7 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
       return derivedNodes.map((n) => {
         const p = prevById.get(n.id)
         if (p && p.data === n.data && p.position.x === n.position.x && p.position.y === n.position.y && p.selected === n.selected) return p
-        return { ...n, measured: p && p.style?.height === n.style?.height ? p.measured : undefined }
+        return { ...n, measured: p?.measured }
       })
     })
   }, [derivedNodes])
@@ -191,20 +191,27 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
         const check = checkSchedule(d, cardsRecord, sprints)
         const { colour } = edgeAppearance(d.state, check)
         const dimmed = (from ? isDimmed(from) : false) || (to ? isDimmed(to) : false)
-        const data: DependencyEdgeData = { depId: d.id, label: d.label, state: d.state, check, dimmed }
+        const fp = layout.cardPos[d.from]
+        const tp = layout.cardPos[d.to]
+        const sides = fp && tp
+          ? pickSides({ x: fp.x, y: fp.y, h: CARD_H }, { x: tp.x, y: tp.y, h: CARD_H })
+          : { source: 'right' as const, target: 'left' as const }
+        const data: DependencyEdgeData = {
+          depId: d.id, label: d.label, state: d.state, check, dimmed,
+        }
         return {
           id: d.id,
           source: d.from,
           target: d.to,
-          sourceHandle: 'out',
-          targetHandle: 'in',
+          sourceHandle: sides.source,
+          targetHandle: sides.target,
           type: 'dependency',
           selected: d.id === selectedDependencyId,
           markerEnd: { type: MarkerType.ArrowClosed, color: colour, width: 16, height: 16 },
           data,
         }
       }),
-    [dependencies, cardsById, cardsRecord, sprints, isDimmed, selectedDependencyId],
+    [dependencies, cardsById, cardsRecord, sprints, isDimmed, selectedDependencyId, layout],
   )
 
   // ── Pan / fit requests ─────────────────────────────────────────────────────
@@ -214,7 +221,7 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
     let target: { x: number; y: number } | null = null
     if (panTarget.kind === 'card') {
       const p = layout.cardPos[panTarget.id]
-      if (p) target = { x: p.x + CARD_W / 2, y: p.y + (layout.cardH[panTarget.id] ?? CARD_H) / 2 }
+      if (p) target = { x: p.x + CARD_W / 2, y: p.y + CARD_H / 2 }
     } else {
       const d = useCardStore.getState().dependencies.find((dep) => dep.id === panTarget.id)
       const a = d && layout.cardPos[d.from]
@@ -252,7 +259,7 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
   // ── Interaction ────────────────────────────────────────────────────────────
 
   const centreOf = useCallback(
-    (n: Node) => ({ x: n.position.x + CARD_W / 2, y: n.position.y + (n.measured?.height ?? n.height ?? CARD_H) / 2 }),
+    (n: Node) => ({ x: n.position.x + CARD_W / 2, y: n.position.y + CARD_H / 2 }),
     [],
   )
 
@@ -370,7 +377,7 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
       edges={rfEdges}
       nodeTypes={nodeTypes}
       edgeTypes={edgeTypes}
-      connectionMode={ConnectionMode.Strict}
+      connectionMode={ConnectionMode.Loose}
       onNodesChange={onNodesChange}
       onNodeDrag={onNodeDrag}
       onNodeDragStop={onNodeDragStop}

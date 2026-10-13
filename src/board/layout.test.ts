@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { BoardConfig, Card } from '../types'
 import { EXTERNAL_LANE_ID } from '../types'
-import { CARD_GAP, CARD_H, CARD_HEIGHTS, CELL_PAD, COL_W, SLOT_W, EXTERNAL_GAP, HEADER_H, LABEL_COL_W, MIN_ROW_H } from './constants'
-import { cellAt, computeLayout, insertIndexAt, stackHeight, stackHeightOf } from './layout'
+import { CARD_GAP, CARD_H, CELL_PAD, COL_W, SLOT_W, EXTERNAL_GAP, HEADER_H, LABEL_COL_W, MIN_ROW_H } from './constants'
+import { cellAt, computeLayout, insertIndexAt, stackHeight } from './layout'
 
 const config: BoardConfig = {
   pi: { name: 'PI' },
@@ -80,38 +80,6 @@ describe('computeLayout', () => {
     expect(last.y).toBe(prev.y + prev.h + EXTERNAL_GAP)
     expect(l.cardPos.e.y).toBe(last.y + CELL_PAD)
     expect(l.height).toBe(last.y + last.h)
-  })
-})
-
-describe('per-card size', () => {
-  const sized = (id: string, order: number, size?: 's' | 'm' | 'l'): Card => ({ ...card('t1', 's1', order, id), size })
-
-  it('stacks cards by their own heights', () => {
-    const cards = [sized('a', 0, 's'), sized('b', 1, 'l'), sized('c', 2)]
-    const l = computeLayout(config, cards)
-    expect(l.cardH).toEqual({ a: CARD_HEIGHTS.s, b: CARD_HEIGHTS.l, c: CARD_HEIGHTS.m })
-    expect(l.cardPos.b.y - l.cardPos.a.y).toBe(CARD_HEIGHTS.s + CARD_GAP)
-    expect(l.cardPos.c.y - l.cardPos.b.y).toBe(CARD_HEIGHTS.l + CARD_GAP)
-  })
-
-  it('sizes the row from the tallest cell', () => {
-    const cards = [sized('a', 0, 'l'), sized('b', 1, 'l'), sized('c', 2, 'l')]
-    const l = computeLayout(config, cards)
-    expect(l.rows[0].h).toBe(stackHeightOf([CARD_HEIGHTS.l, CARD_HEIGHTS.l, CARD_HEIGHTS.l]))
-  })
-
-  it('keeps column width fixed whatever the sizes', () => {
-    const l = computeLayout(config, [sized('a', 0, 'l')])
-    expect(l.cols.every((c) => c.w === COL_W)).toBe(true)
-  })
-
-  it('inserts using the displayed heights', () => {
-    const cards = [sized('a', 0, 'l'), sized('b', 1, 's')]
-    const l = computeLayout(config, cards)
-    const cell = { laneId: 't1', sprintId: 's1', slot: 'start' as const }
-    const midA = l.cardPos.a.y + CARD_HEIGHTS.l / 2
-    expect(insertIndexAt(l, cards, cell, midA - 1)).toBe(0)
-    expect(insertIndexAt(l, cards, cell, midA + 1)).toBe(1)
   })
 })
 

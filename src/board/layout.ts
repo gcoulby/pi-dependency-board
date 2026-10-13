@@ -11,7 +11,6 @@ import {
   MIN_ROW_H,
   SLOT_W,
   SLOTS,
-  cardHeight,
 } from './constants'
 import { slotIndex, slotOf } from './slots'
 
@@ -19,8 +18,6 @@ export interface BoardLayout {
   cols: { sprintId: SprintId; x: number; w: number }[]
   rows: { laneId: LaneId; y: number; h: number }[]
   cardPos: Record<CardId, { x: number; y: number }>
-  /** Height of each card. Cards are resized per ticket; width is always CARD_W. */
-  cardH: Record<CardId, number>
   width: number
   height: number
 }
@@ -79,7 +76,6 @@ export function computeLayout(config: BoardConfig, cards: Card[]): BoardLayout {
 
   const rows: BoardLayout['rows'] = []
   const cardPos: BoardLayout['cardPos'] = {}
-  const cardH: BoardLayout['cardH'] = {}
   let y = HEADER_H
 
   for (const laneId of laneIds) {
@@ -93,12 +89,10 @@ export function computeLayout(config: BoardConfig, cards: Card[]): BoardLayout {
         const x = col.x + slotIndex(slot) * SLOT_W + CELL_PAD
         let top = y + CELL_PAD
         for (const c of list) {
-          const h = cardHeight(c.size)
           cardPos[c.id] = { x, y: top }
-          cardH[c.id] = h
-          top += h + CARD_GAP
+          top += CARD_H + CARD_GAP
         }
-        tallest = Math.max(tallest, stackHeightOf(list.map((c) => cardHeight(c.size))))
+        tallest = Math.max(tallest, stackHeight(list.length))
       }
     }
 
@@ -107,7 +101,7 @@ export function computeLayout(config: BoardConfig, cards: Card[]): BoardLayout {
     y += h
   }
 
-  return { cols, rows, cardPos, cardH, width: LABEL_COL_W + cols.length * COL_W, height: y }
+  return { cols, rows, cardPos, width: LABEL_COL_W + cols.length * COL_W, height: y }
 }
 
 /** The (lane, sprint, slot) cell under a point, or null for headers, label column, gaps and outside. */
@@ -131,8 +125,7 @@ export function insertIndexAt(layout: BoardLayout, cards: Card[], cell: Cell, y:
   const stack = cardsInCell(cards, cell)
   for (let i = 0; i < stack.length; i++) {
     const pos = layout.cardPos[stack[i].id]
-    const h = layout.cardH[stack[i].id] ?? CARD_H
-    if (pos && y < pos.y + h / 2) return i
+    if (pos && y < pos.y + CARD_H / 2) return i
   }
   return stack.length
 }

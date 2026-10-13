@@ -131,27 +131,6 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
             </div>
           </div>
 
-          {/* Size */}
-          <div>
-            <SectionLabel>Size on board</SectionLabel>
-            <div className="flex gap-1.5" role="group" aria-label="Card size">
-              {(['s', 'm', 'l'] as const).map((k) => (
-                <button
-                  key={k}
-                  onClick={() => updateCard(cardId, { size: k })}
-                  aria-pressed={(card.size ?? 'm') === k}
-                  title={{ s: 'Small', m: 'Medium', l: 'Large' }[k]}
-                  className={[
-                    'w-9 py-1 rounded border text-[11px] font-mono uppercase transition-colors',
-                    (card.size ?? 'm') === k ? 'border-amber-400/60 text-amber-400 bg-amber-400/10' : 'border-[#30363d] text-[#8b949e] hover:border-[#484f58]',
-                  ].join(' ')}
-                >
-                  {k}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Placement */}
           <div className="grid grid-cols-2 gap-2">
             <div>

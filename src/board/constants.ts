@@ -10,16 +10,3 @@ export const SLOT_W = CARD_W + CELL_PAD * 2
 export const COL_W = SLOT_W * SLOTS.length
 export const MIN_ROW_H = 140
 export const EXTERNAL_GAP = 40
-
-export type CardSizeKey = 's' | 'm' | 'l'
-
-/** Cards are resized per ticket. Width never changes, so columns stay fixed; only height varies. */
-export const CARD_HEIGHTS: Record<CardSizeKey, number> = {
-  s: 60,
-  m: CARD_H,
-  l: 116,
-}
-
-export function cardHeight(size: CardSizeKey | undefined): number {
-  return CARD_HEIGHTS[size ?? 'm'] ?? CARD_H
-}

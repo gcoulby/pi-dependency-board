@@ -20,6 +20,8 @@ interface CardStoreState {
   /** Returns null for self-links and duplicates. Never rejects conflicts or cycles. */
   addDependency: (dep: Pick<Dependency, 'from' | 'to'> & Partial<Pick<Dependency, 'label' | 'notes' | 'state'>>) => Dependency | null
   updateDependency: (id: DependencyId, updates: Partial<Omit<Dependency, 'id'>>) => void
+  /** Swaps provider and dependant. Returns false when the opposite link already exists. */
+  reverseDependency: (id: DependencyId) => boolean
   deleteDependency: (id: DependencyId) => void
 
   /** Bulk reference rewrite used by guarded deletes in boardActions. */
@@ -115,7 +117,6 @@ export const useCardStore = create<CardStoreState>((set, get) => ({
         laneId: src.laneId,
         sprintId: src.sprintId,
         slot: src.slot,
-        size: src.size,
         description: src.description,
         owner: src.owner,
         estimate: src.estimate,
@@ -158,6 +159,14 @@ export const useCardStore = create<CardStoreState>((set, get) => ({
 
   updateDependency: (id, updates) =>
     set((s) => ({ dependencies: s.dependencies.map((d) => (d.id === id ? { ...d, ...updates } : d)) })),
+
+  reverseDependency: (id) => {
+    const dep = get().dependencies.find((d) => d.id === id)
+    if (!dep) return false
+    if (get().dependencies.some((d) => d.from === dep.to && d.to === dep.from)) return false
+    set((s) => ({ dependencies: s.dependencies.map((d) => (d.id === id ? { ...d, from: d.to, to: d.from } : d)) }))
+    return true
+  },
 
   deleteDependency: (id) => set((s) => ({ dependencies: s.dependencies.filter((d) => d.id !== id) })),
 

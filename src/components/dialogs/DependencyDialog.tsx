@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { X, AlertTriangle, CheckCircle2, ArrowRight } from 'lucide-react';
+import { X, AlertTriangle, CheckCircle2, ArrowLeftRight } from 'lucide-react';
 import { useCardStore } from '../../store/cardStore';
 import { useBoardStore } from '../../store/boardStore';
 import { checkSchedule } from '../../board/dependencies';
@@ -22,6 +22,8 @@ export function DependencyDialog({ dependencyId, onClose }: Props) {
   const sprints = useBoardStore((s) => s.sprints);
   const updateDependency = useCardStore((s) => s.updateDependency);
   const deleteDependency = useCardStore((s) => s.deleteDependency);
+  const reverseDependency = useCardStore((s) => s.reverseDependency);
+  const [reverseBlocked, setReverseBlocked] = useState(false);
 
   const [label, setLabel] = useState(dep?.label ?? '');
   const [notes, setNotes] = useState(dep?.notes ?? '');
@@ -61,7 +63,14 @@ export function DependencyDialog({ dependencyId, onClose }: Props) {
             <div className="text-[12px] text-[#e6edf3] truncate">{from?.title ?? 'Unknown card'}</div>
             <div className="text-[10px] font-mono text-[#8b949e]">{sprintName(from?.sprintId, from?.slot)}</div>
           </div>
-          <ArrowRight size={16} className="self-center text-[#8b949e] shrink-0" />
+          <button
+            onClick={() => setReverseBlocked(!reverseDependency(dependencyId))}
+            title="Reverse direction: swap which card delivers first"
+            aria-label="Reverse direction"
+            className="self-center shrink-0 p-1.5 rounded border border-[#30363d] text-[#8b949e] hover:text-amber-400 hover:border-amber-400/50 transition-colors"
+          >
+            <ArrowLeftRight size={14} />
+          </button>
           <div className="flex-1 min-w-0 rounded border border-[#30363d] bg-[#0d1117] px-3 py-2">
             <div className="text-[9px] uppercase tracking-wider text-[#484f58] font-mono">Needs it</div>
             <div className="text-[12px] text-[#e6edf3] truncate">{to?.title ?? 'Unknown card'}</div>
@@ -69,6 +78,9 @@ export function DependencyDialog({ dependencyId, onClose }: Props) {
           </div>
         </div>
 
+        {reverseBlocked && (
+          <div className="mb-3 text-[11px] text-[#f0883e]">The opposite dependency already exists, so this one cannot be reversed.</div>
+        )}
         {check === 'conflict' && (
           <div className="flex gap-2 items-start mb-4 px-3 py-2 rounded border border-[#f85149]/40 bg-[#f85149]/10 text-[11px] text-[#f85149]">
             <AlertTriangle size={13} className="shrink-0 mt-px" />

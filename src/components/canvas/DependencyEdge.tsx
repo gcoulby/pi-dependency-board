@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath, type EdgeProps } from '@xyflow/react'
+import { BaseEdge, EdgeLabelRenderer, getStraightPath, type EdgeProps } from '@xyflow/react'
 import type { DependencyState, ScheduleCheck } from '../../types'
 import { useViewStore } from '../../store/viewStore'
 import { edgeAppearance } from '../../lib/edgeStyle'
@@ -13,13 +13,12 @@ export interface DependencyEdgeData extends Record<string, unknown> {
 }
 
 export const DependencyEdge = memo(function DependencyEdge({
-  id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data, selected, markerEnd,
+  id, sourceX, sourceY, targetX, targetY, data, selected, markerEnd,
 }: EdgeProps) {
   const d = data as DependencyEdgeData
   const { colour, width, dash } = edgeAppearance(d.state, d.check)
-  const [path, labelX, labelY] = getSmoothStepPath({
-    sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, borderRadius: 10,
-  })
+  // Straight lines, no bends: easier to trace by eye
+  const [path, labelX, labelY] = getStraightPath({ sourceX, sourceY, targetX, targetY })
 
   const tags: { text: string; tone: 'danger' | 'warn' | 'plain' }[] = []
   if (d.check === 'conflict') tags.push({ text: 'conflict', tone: 'danger' })

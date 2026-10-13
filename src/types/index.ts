@@ -49,8 +49,6 @@ export interface CardType {
   icon: CardTypeIcon // a string key, never a component reference
 }
 
-export type CardSize = 's' | 'm' | 'l'
-
 export interface BoardConfig {
   pi: { name: string; startDate?: string }
   teams: Team[]
@@ -74,7 +72,6 @@ export interface Card {
   sprintId: SprintId
   order: number // index within its cell
   slot?: SprintSlot // first or second half of the sprint. Defaults to 'start'
-  size?: CardSize // height on the board; defaults to 'm'
   description?: string
   owner?: TeamId // the team that owns the card, by team id
   estimate?: number
