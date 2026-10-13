@@ -14,7 +14,7 @@ export interface Team {
   colour: string // #rrggbb
 }
 
-export type SprintSlot = 'start' | 'mid' | 'end'
+export type SprintSlot = 'start' | 'end'
 
 export interface Sprint {
   id: SprintId
@@ -73,7 +73,7 @@ export interface Card {
   laneId: LaneId
   sprintId: SprintId
   order: number // index within its cell
-  slot?: SprintSlot // where in the sprint: start, mid or end. Defaults to 'mid'
+  slot?: SprintSlot // first or second half of the sprint. Defaults to 'start'
   size?: CardSize // height on the board; defaults to 'm'
   description?: string
   owner?: TeamId // the team that owns the card, by team id

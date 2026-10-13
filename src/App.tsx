@@ -357,7 +357,7 @@ function AppInner() {
       size: values.size === 'm' ? undefined : values.size,
       laneId: showNewCard.laneId,
       sprintId: showNewCard.sprintId,
-      slot: showNewCard.slot === 'mid' ? undefined : showNewCard.slot,
+      slot: showNewCard.slot === 'start' ? undefined : showNewCard.slot,
       owner: values.owner,
       estimate: values.estimate,
       party: values.party,

@@ -1,133 +1,74 @@
-# TraceNote
+# PI Board
 
-> **AI Declaration**: This project is an agentic coding experiment. The architecture, specification, and code are being generated with AI assistance (Claude, Anthropic). It is exploratory by nature -- expect rough edges, evolving structure, and the occasional questionable decision made at speed.
+> **AI Declaration**: This project is an agentic coding experiment. The architecture, specification and code are generated with AI assistance (Claude, Anthropic). It is exploratory by nature: expect rough edges and the occasional questionable decision made at speed.
 
 ---
 
-A privacy-first OSINT investigation board. Build a graph of entities, relationships, and evidence. Everything lives in a single `.tnote` file on your disk. No server. No cloud. No telemetry.
+A privacy-first, offline dependency board for PI planning. Teams run down the side, sprints run across the top, and cards sit in the cells, like the wall at a PI planning event. A separate row holds external dependencies. Arrows show who needs what from whom, and the board flags any dependency that cannot work on the schedule as drawn.
 
-The core idea: you pick a target, you start pulling threads, and TraceNote gives you a spatial canvas to lay it all out -- people, locations, organisations, documents, images, connections between them. As the picture grows, so does the graph.
+Everything lives in a single `.piboard` file on your disk. No server, no cloud, no telemetry.
 
-![TraceNote screenshot](screenshot.png)
+![PI Board screenshot](screenshot.png)
 
 ---
 
 ## Features
 
-- **Graph-based case board** -- freeform canvas with nodes and edges, built on React Flow
-- **`.tnote` file format** -- a single zip archive containing your graph, canvas layout, rich content, and all attachments
-- **Rich node content** -- every node can have a full BlockNote document (headings, lists, tables, images, code blocks)
-- **Freeform + auto layout** -- drag nodes freely, or apply dagre/force-directed auto layout
-- **Optional edge labels** -- connect nodes with or without a relationship label
-- **Tag library** -- tag nodes and filter the canvas by tag
-- **Full-text search** -- search across labels, summaries, tags, and properties
-- **Offline first** -- runs entirely in the browser, no network requests at runtime
-- **File System Access API** -- open and save `.tnote` files directly to disk, draw.io style
+- **Swimlane matrix**: rows are teams, columns are sprints, plus an external-dependencies row that shares the sprint columns
+- **Start and end of sprint**: each sprint is split into two sub-columns by a barely-there divider, so you can place a card early or late in a sprint
+- **Typed, colour-coded cards**: Feature, Enabler, Spike, Tech debt, Risk, Milestone, Requirement and Dependency. Types are always shown as icon plus label, never colour alone. Add, recolour and reorder types per board
+- **Requirements and dependencies**: a Requirement is something a team needs; a Dependency is something someone provides to meet it
+- **Per-card size** (S, M, L) and a team owner on every card
+- **Dependency arrows** with three states (proposed, agreed, at-risk) and a schedule check: a thick red dashed line means the provider is scheduled after the card waiting on it. Same-sprint, same-slot dependencies are tagged, and cycles are listed. Nothing is ever blocked, only shown
+- **Focus mode**: select a card to light up everything upstream and downstream of it
+- **Legend, team filters and an issues list** in the sidebar
+- **Search** with `/` or `Ctrl+K`, across titles, owners, tags, descriptions and, optionally, long-form documents
+- **Long-form card detail** in a BlockNote editor, loaded only when opened
+- **Optional AES-256-GCM encryption** with a passphrase
+- **Auto-save**, debounced, which never fires on pan or zoom
+- **Offline first**: zero network requests at runtime
 
 ---
 
-## Getting Started
+## The `.piboard` format
 
-### Prerequisites
+A `.piboard` file is a ZIP archive, optionally wrapped in an AES-GCM envelope (magic header `PB01`).
 
-- Node.js 18+
-- PNPM
-
-```bash
-npm install -g pnpm
+```
+manifest.json   format id, schema version, title, timestamps
+board.json      PI details, teams, sprints, card types, external lane label
+cards.json      cards and dependencies
+view.json       viewport only
+assets/         attachments
+content/        one BlockNote document per card with long-form detail
 ```
 
-### Install
+Pixel positions are never stored. They are derived from each card's team, sprint, slot and order on every render.
+
+---
+
+## Getting started
 
 ```bash
-git clone https://github.com/yourname/tracenote.git
-cd tracenote
 pnpm install
+pnpm dev        # http://localhost:5173
+pnpm test       # layout and dependency logic
+pnpm lint
+pnpm build      # static bundle in dist/
 ```
 
-### Run
-
-```bash
-pnpm dev
-```
-
-Opens at `http://localhost:5173`.
-
-### Build
-
-```bash
-pnpm build
-```
-
-Output goes to `dist/`. The build is a fully static bundle -- it can be served from any static host, a local file server, or even a USB stick.
-
-### Preview the build
-
-```bash
-pnpm preview
-```
+The built bundle is fully static and can be served from a USB stick or any local file server. Opening and saving files uses the File System Access API (Chromium browsers), with a file-input and download fallback elsewhere.
 
 ---
 
-## The `.tnote` Format
+## Using the board
 
-A `.tnote` file is a ZIP archive. You own the file. It lives wherever you put it.
-
-```
-case.tnote
-├── manifest.json       # case title, version, timestamps
-├── graph.json          # all nodes and edges
-├── canvas.json         # node positions and viewport state
-├── assets/             # images, PDFs, and other attachments
-└── content/            # BlockNote documents, one per node
-```
-
-You can open a `.tnote` with any zip tool if you need to inspect or recover its contents.
-
----
-
-## Browser Support
-
-TraceNote uses the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API) for direct file access. This is supported in Chromium-based browsers (Chrome, Edge, Brave, Arc).
-
-Firefox and Safari users get a fallback: open via file picker, save via download. It works, but it's less seamless.
-
----
-
-## Privacy
-
-- No analytics
-- No error reporting
-- No network requests at runtime
-- Case data never touches `localStorage` or any browser storage -- it lives in the `.tnote` file only
-
-If you are tracking sensitive targets, keep your `.tnote` files on encrypted storage. File-level encryption is on the roadmap for a future release.
-
----
-
-## Roadmap
-
-- [ ] File encryption (passphrase-based, AES-GCM via Web Crypto)
-- [ ] Timeline / chronological view
-- [ ] Node clustering and grouping
-- [ ] Custom node types with field templates
-- [ ] Export to PDF / PNG
-
----
-
-## Stack
-
-- [React](https://react.dev/) + [Vite](https://vitejs.dev/)
-- [React Flow](https://reactflow.dev/) -- canvas and graph rendering
-- [BlockNote](https://www.blocknotejs.org/) -- rich text editing
-- [Zustand](https://zustand-demo.pmnd.rs/) -- state management
-- [JSZip](https://stuk.github.io/jszip/) -- `.tnote` archive handling
-- [Dagre](https://github.com/dagrejs/dagre) -- hierarchical auto layout
-- [Tailwind CSS v4](https://tailwindcss.com/)
-- [Lucide](https://lucide.dev/) -- icons
-
----
-
-## Licence
-
-MIT
+| Action | How |
+| --- | --- |
+| Add a card | Double-click an empty cell (the click position picks the start or end half of the sprint) |
+| Move a card | Drag it to another cell or slot; drop between cards to insert |
+| Link cards | Drag from a card's right dot to the left dot of the card that needs it |
+| Focus a chain | Click a card |
+| Rename a team or sprint | Double-click its header |
+| Teams, sprints, types | Board settings |
+| Delete | Select and press `Del` |

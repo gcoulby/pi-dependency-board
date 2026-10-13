@@ -63,8 +63,8 @@ export const MatrixBackground = memo(function MatrixBackground({ layout, hoverCe
             }}
           />
         )}
-        {/* The start / mid / end sub-columns are invisible, except as faint guides while a card is dragged */}
-        {hoverCell && layout.cols.flatMap((col) =>
+        {/* The start / end halves of each sprint: a barely-there divider, a little clearer while dragging */}
+        {layout.cols.flatMap((col) =>
           SLOTS.slice(1).map((slot) => (
             <div
               key={`${col.sprintId}-${slot}`}
@@ -74,7 +74,7 @@ export const MatrixBackground = memo(function MatrixBackground({ layout, hoverCe
                 top: HEADER_H,
                 width: 0,
                 height: layout.height - HEADER_H,
-                borderLeft: '1px dashed #30363d',
+                borderLeft: `1px dashed ${hoverCell ? '#3d444d' : '#1d242d'}`,
               }}
             />
           )),

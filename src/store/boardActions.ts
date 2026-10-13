@@ -1,5 +1,6 @@
 import type { CardTypeId, LaneId, SprintId, TeamId } from '../types'
 import { EXTERNAL_LANE_ID } from '../types'
+import { PROTECTED_CARD_TYPE_IDS } from '../board/defaults'
 import { useBoardStore } from './boardStore'
 import { useCardStore } from './cardStore'
 import { useViewStore } from './viewStore'
@@ -59,6 +60,7 @@ export function deleteSprint(id: SprintId, moveToSprintId?: SprintId): boolean {
 export function deleteCardType(id: CardTypeId, reassignTo?: CardTypeId): boolean {
   const board = useBoardStore.getState()
   if (!board.cardTypes.some((t) => t.id === id)) return false
+  if (PROTECTED_CARD_TYPE_IDS.includes(id)) return false // Requirement and Dependency are permanent
   if (board.cardTypes.length <= 1) return false // every card needs a type
 
   if (countCardsOfType(id) > 0) {

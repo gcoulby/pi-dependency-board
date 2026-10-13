@@ -3,7 +3,7 @@ import type {
   BoardConfig, BoardManifest, Card, CardId, CardType, Dependency, DependencyState, Sprint, Team, Viewport,
 } from '../types';
 import { EXTERNAL_LANE_ID } from '../types';
-import { DEFAULT_CARD_TYPES } from '../board/defaults';
+import { DEFAULT_CARD_TYPES, PROTECTED_CARD_TYPE_IDS } from '../board/defaults';
 import { safeHex } from '../lib/cardTypeStyle';
 
 const SUPPORTED_VERSION = 1;
@@ -66,6 +66,11 @@ export function healBoard(
     cardTypes = DEFAULT_CARD_TYPES.map((t) => ({ ...t }));
   }
 
+  // Requirement and Dependency are permanent: add them back to boards saved without them
+  for (const def of DEFAULT_CARD_TYPES) {
+    if (PROTECTED_CARD_TYPE_IDS.includes(def.id) && !cardTypes.some((t) => t.id === def.id)) cardTypes.push({ ...def });
+  }
+
   const config: BoardConfig = {
     pi: { name: rawConfig.pi?.name ?? 'PI', startDate: rawConfig.pi?.startDate },
     teams,
@@ -104,7 +109,8 @@ export function healBoard(
       warn(`card ${card.id}: unknown typeId "${card.typeId}", changed to "${cardTypes[0].id}"`);
       card.typeId = cardTypes[0].id;
     }
-    if (card.slot !== undefined && card.slot !== 'start' && card.slot !== 'mid' && card.slot !== 'end') card.slot = undefined;
+    // 'mid' came from an earlier three-slot design; fold it into the start slot
+    if (card.slot !== 'end') card.slot = undefined;
     if (card.size !== undefined && card.size !== 's' && card.size !== 'm' && card.size !== 'l') card.size = undefined;
     if (card.owner !== undefined && !teamIds.has(card.owner)) {
       warn(`card ${card.id}: owner "${card.owner}" is not a team, cleared`);
@@ -116,7 +122,7 @@ export function healBoard(
   // Renumber order 0..n within each cell so ties never exist
   const cells = new Map<string, { card: Card; i: number }[]>();
   cards.forEach((card, i) => {
-    const key = `${card.laneId}\u0000${card.sprintId}\u0000${card.slot ?? 'mid'}`;
+    const key = `${card.laneId}\u0000${card.sprintId}\u0000${card.slot ?? 'start'}`;
     const list = cells.get(key);
     if (list) list.push({ card, i });
     else cells.set(key, [{ card, i }]);

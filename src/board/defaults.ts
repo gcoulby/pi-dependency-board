@@ -13,6 +13,9 @@ export const DEFAULT_CARD_TYPES: CardType[] = [
   { id: 'dependency', name: 'Dependency', colour: '#2ea043', icon: 'Package' },
 ]
 
+/** Built-in types that can be edited and recoloured but never deleted. */
+export const PROTECTED_CARD_TYPE_IDS: readonly string[] = ['requirement', 'dependency']
+
 export const TEAM_PALETTE = ['#58a6ff', '#a78bfa', '#2dd4bf', '#f0883e', '#fb7185', '#3fb950', '#d2a8ff', '#79c0ff']
 
 /** Presets offered by the colour pickers. Amber is deliberately absent: it is reserved for selection. */

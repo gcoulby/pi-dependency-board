@@ -8,8 +8,8 @@ const sprints: Sprint[] = [
   { id: 's3', name: 'S3' },
 ]
 
-const card = (id: string, sprintId: string): Card => ({
-  id, title: id, typeId: 'feature', laneId: 't1', sprintId, order: 0,
+const card = (id: string, sprintId: string, slot?: 'start' | 'end'): Card => ({
+  id, title: id, typeId: 'feature', laneId: 't1', sprintId, slot, order: 0,
   tags: [], properties: {}, hasContent: false, createdAt: '', updatedAt: '',
 })
 
@@ -30,6 +30,19 @@ describe('checkSchedule', () => {
 
   it('flags a conflict when the provider is in a later sprint', () => {
     expect(checkSchedule(dep('d', 'a'), cards, sprints)).toBe('conflict')
+  })
+
+  it('uses the slot inside one sprint', () => {
+    const c = [card('p', 's2', 'start'), card('q', 's2', 'end'), card('r', 's2', 'start'), card('d', 's2')]
+    expect(checkSchedule(dep('p', 'q'), c, sprints)).toBe('ok') // start before end
+    expect(checkSchedule(dep('p', 'r'), c, sprints)).toBe('same-sprint') // same slot
+    expect(checkSchedule(dep('q', 'p'), c, sprints)).toBe('conflict') // end after start
+    expect(checkSchedule(dep('d', 'q'), c, sprints)).toBe('ok') // no slot means start
+  })
+
+  it('ignores the slot across sprints', () => {
+    const c = [card('p', 's1', 'end'), card('q', 's2', 'start')]
+    expect(checkSchedule(dep('p', 'q'), c, sprints)).toBe('ok')
   })
 
   it('is ok for dangling references', () => {

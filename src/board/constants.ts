@@ -4,11 +4,11 @@ export const CELL_PAD = 20
 export const CARD_W = 224
 export const CARD_H = 84
 export const CARD_GAP = 28
-// Each sprint column holds three invisible sub-columns: start, mid and end of sprint
-export const SLOTS = ['start', 'mid', 'end'] as const
+// Each sprint column holds two sub-columns: start and end of sprint
+export const SLOTS = ['start', 'end'] as const
 export const SLOT_W = CARD_W + CELL_PAD * 2
 export const COL_W = SLOT_W * SLOTS.length
-export const MIN_ROW_H = 120
+export const MIN_ROW_H = 140
 export const EXTERNAL_GAP = 40
 
 export type CardSizeKey = 's' | 'm' | 'l'

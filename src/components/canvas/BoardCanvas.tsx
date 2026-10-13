@@ -225,10 +225,12 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
   }, [panTarget]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fit the whole matrix, anchored to the top so the pinned headers line up with it
-  const fit = useCallback((animate = true) => {
+  // `readable` stops short of a true fit so a wide board opens at a legible zoom and is panned from there
+  const fit = useCallback((animate = true, readable = false) => {
     const { width, height } = storeApi.getState()
     if (!width || !height) return
-    const zoom = Math.max(0.15, Math.min(1, width / layout.width, height / layout.height))
+    const floor = readable ? 0.55 : 0.15
+    const zoom = Math.max(floor, Math.min(1, width / layout.width, height / layout.height))
     const x = Math.max(0, (width - layout.width * zoom) / 2)
     void setViewport({ x, y: 0, zoom }, { duration: animate ? 300 : 0 })
   }, [setViewport, storeApi, layout.width, layout.height])
@@ -242,7 +244,7 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
   useEffect(() => {
     const v = useViewStore.getState().viewport
     if (!(v.x === 0 && v.y === 0 && v.zoom === 1)) return
-    const t = setTimeout(() => fit(false), 80)
+    const t = setTimeout(() => fit(false, true), 80)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -373,8 +375,6 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
       onNodeDrag={onNodeDrag}
       onNodeDragStop={onNodeDragStop}
       onConnect={onConnect}
-      onConnectEnd={(_e, st) => console.log('DBG connectEnd', st.isValid, st.fromNode?.id?.slice(0,4), st.toNode?.id?.slice(0,4), st.toHandle?.id)}
-      onConnectStart={(_e, p) => console.log('DBG connectStart', p.nodeId?.slice(0,4), p.handleId)}
       isValidConnection={(c) => c.source !== c.target}
       onNodesDelete={onNodesDelete}
       onEdgesDelete={onEdgesDelete}

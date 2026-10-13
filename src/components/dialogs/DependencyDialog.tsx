@@ -37,7 +37,7 @@ export function DependencyDialog({ dependencyId, onClose }: Props) {
 
   const from = cards.find((c) => c.id === dep.from);
   const to = cards.find((c) => c.id === dep.to);
-  const sprintName = (id?: string, slot?: string) => `${sprints.find((s) => s.id === id)?.name ?? '?'} · ${slot ?? 'mid'}`;
+  const sprintName = (id?: string, slot?: string) => `${sprints.find((s) => s.id === id)?.name ?? '?'} · ${slot ?? 'start'}`;
   const check = checkSchedule(dep, cards, sprints);
 
   const save = () => {

@@ -18,6 +18,129 @@ interface CardStoreState {
   moveCard: (id: CardId, laneId: LaneId, sprintId: SprintId, index: number, slot?: SprintSlot) => void
 
   /** Returns null for self-links and duplicates. Never rejects conflicts or cycles. */
+  addDependency: (dep: Pick<Dependency, 'from' | 'to'> & Partial<Pick<Dependency, 'label' | 'notes' | 'state'>>) => Dependency | null
+  updateDependency: (id: DependencyId, updates: Partial<Omit<Dependency, 'id'>>) => void
+  deleteDependency: (id: DependencyId) => void
+
+  /** Bulk reference rewrite used by guarded deletes in boardActions. */
+  patchCards: (match: (c: Card) => boolean, patch: Partial<Card>) => void
+  deleteCards: (match: (c: Card) => boolean) => void
+
+  loadCards: (cards: Card[], dependencies: Dependency[]) => void
+  reset: () => void
+}
+
+/** A cell is a (lane, sprint, slot) triple: start or end of the sprint. */
+interface CellKey {
+  laneId: LaneId
+  sprintId: SprintId
+  slot: SprintSlot
+}
+
+const sameCell = (a: Card, cell: CellKey) =>
+  a.laneId === cell.laneId && a.sprintId === cell.sprintId && slotOf(a) === cell.slot
+
+const cellKeyOf = (c: Card): CellKey => ({ laneId: c.laneId, sprintId: c.sprintId, slot: slotOf(c) })
+
+/** Cards of a cell in `order`, ties broken stably by array position. */
+function cellOf(cards: Card[], cell: CellKey): Card[] {
+  return cards
+    .map((c, i) => ({ c, i }))
+    .filter(({ c }) => sameCell(c, cell))
+    .sort((a, b) => a.c.order - b.c.order || a.i - b.i)
+    .map(({ c }) => c)
+}
+
+/** Rewrites `order` 0..n for the given cells, leaving every other card untouched. */
+function renumber(cards: Card[], cells: CellKey[]): Card[] {
+  const orders = new Map<CardId, number>()
+  const seen = new Set<string>()
+  for (const cell of cells) {
+    const key = `${cell.laneId}\u0000${cell.sprintId}\u0000${cell.slot}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    cellOf(cards, cell).forEach((c, i) => orders.set(c.id, i))
+  }
+  return cards.map((c) => (orders.has(c.id) && orders.get(c.id) !== c.order ? { ...c, order: orders.get(c.id)! } : c))
+}
+
+export const useCardStore = create<CardStoreState>((set, get) => ({
+  cards: [],
+  dependencies: [],
+
+  addCard: (data, index) => {
+    const now = new Date().toISOString()
+    const { cards } = get()
+    const cell: CellKey = { laneId: data.laneId, sprintId: data.sprintId, slot: data.slot ?? 'start' }
+    const stackLen = cellOf(cards, cell).length
+    const at = index === undefined ? stackLen : Math.max(0, Math.min(index, stackLen))
+    const card: Card = {
+      tags: [],
+      properties: {},
+      hasContent: false,
+      ...data,
+      id: nanoid(),
+      order: at - 0.5, // sorts between neighbours; renumber makes it an integer
+      createdAt: now,
+      updatedAt: now,
+    }
+    set({ cards: renumber([...cards, card], [cellKeyOf(card)]) })
+    return get().cards.find((c) => c.id === card.id)!
+  },
+
+  updateCard: (id, updates) =>
+    set((s) => ({
+      cards: s.cards.map((c) => (c.id === id ? { ...c, ...updates, updatedAt: new Date().toISOString() } : c)),
+    })),
+
+  deleteCard: (id) =>
+    set((s) => {
+      const card = s.cards.find((c) => c.id === id)
+      if (!card) return s
+      const rest = s.cards.filter((c) => c.id !== id)
+      return {
+        cards: renumber(rest, [cellKeyOf(card)]),
+        dependencies: s.dependencies.filter((d) => d.from !== id && d.to !== id),
+      }
+    }),
+
+  duplicateCard: (id) => {
+    const src = get().cards.find((c) => c.id === id)
+    if (!src) return null
+    const idx = cellOf(get().cards, cellKeyOf(src)).findIndex((c) => c.id === id)
+    return get().addCard(
+      {
+        title: `${src.title} (copy)`,
+        typeId: src.typeId,
+        laneId: src.laneId,
+        sprintId: src.sprintId,
+        slot: src.slot,
+        size: src.size,
+        description: src.description,
+        owner: src.owner,
+        estimate: src.estimate,
+        party: src.party,
+        tags: [...src.tags],
+        properties: { ...src.properties },
+      },
+      idx + 1,
+    )
+  },
+
+  moveCard: (id, laneId, sprintId, index, slot) =>
+    set((s) => {
+      const card = s.cards.find((c) => c.id === id)
+      if (!card) return s
+      const from = cellKeyOf(card)
+      const to: CellKey = { laneId, sprintId, slot: slot ?? slotOf(card) }
+      // Position of the card within the target cell, with the card itself removed
+      const target = cellOf(s.cards.filter((c) => c.id !== id), to)
+      const at = Math.max(0, Math.min(index, target.length))
+      const moved = { ...card, laneId, sprintId, slot: to.slot, order: at - 0.5, updatedAt: new Date().toISOString() }
+      const cards = s.cards.map((c) => (c.id === id ? moved : c))
+      return { cards: renumber(cards, [from, to]) }
+    }),
+
   addDependency: (dep) => {
     const { dependencies, cards } = get()
     if (dep.from === dep.to) return null

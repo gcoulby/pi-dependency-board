@@ -6,7 +6,7 @@ import {
   deleteTeam, deleteSprint, deleteCardType, type TeamResolution,
 } from '../../store/boardActions';
 import { ALL_CARD_TYPE_ICONS, CARD_TYPE_ICONS, cardTypeStyle, isValidHex } from '../../lib/cardTypeStyle';
-import { COLOUR_PRESETS } from '../../board/defaults';
+import { COLOUR_PRESETS, PROTECTED_CARD_TYPE_IDS } from '../../board/defaults';
 import { EXTERNAL_LANE_ID } from '../../types';
 
 type Tab = 'teams' | 'sprints' | 'types';
@@ -260,8 +260,8 @@ function TypesTab({ onResolve }: { onResolve: (id: string) => void }) {
               </div>
               <button
                 className={`${iconBtn} hover:!text-red-400`}
-                disabled={cardTypes.length <= 1}
-                title={cardTypes.length <= 1 ? 'A board needs at least one card type' : 'Delete type'}
+                disabled={cardTypes.length <= 1 || PROTECTED_CARD_TYPE_IDS.includes(t.id)}
+                title={PROTECTED_CARD_TYPE_IDS.includes(t.id) ? `${t.name} is a built-in type and cannot be deleted` : cardTypes.length <= 1 ? 'A board needs at least one card type' : 'Delete type'}
                 onClick={() => (countCardsOfType(t.id) > 0 ? onResolve(t.id) : deleteCardType(t.id))}
                 aria-label="Delete type"
               >

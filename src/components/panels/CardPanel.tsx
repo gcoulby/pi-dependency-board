@@ -181,14 +181,14 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
           <div>
             <SectionLabel>In sprint</SectionLabel>
             <div className="flex gap-1.5" role="group" aria-label="Position in sprint">
-              {(['start', 'mid', 'end'] as const).map((k) => (
+              {(['start', 'end'] as const).map((k) => (
                 <button
                   key={k}
                   onClick={() => moveCard(cardId, card.laneId, card.sprintId, Number.MAX_SAFE_INTEGER, k)}
-                  aria-pressed={(card.slot ?? 'mid') === k}
+                  aria-pressed={(card.slot ?? 'start') === k}
                   className={[
                     'flex-1 py-1 rounded border text-[11px] capitalize transition-colors',
-                    (card.slot ?? 'mid') === k ? 'border-amber-400/60 text-amber-400 bg-amber-400/10' : 'border-[#30363d] text-[#8b949e] hover:border-[#484f58]',
+                    (card.slot ?? 'start') === k ? 'border-amber-400/60 text-amber-400 bg-amber-400/10' : 'border-[#30363d] text-[#8b949e] hover:border-[#484f58]',
                   ].join(' ')}
                 >
                   {k}

@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { nanoid } from 'nanoid'
 import type { BoardConfig, CardType, CardTypeId, Sprint, SprintId, Team, TeamId } from '../types'
 import { EXTERNAL_LANE_ID } from '../types'
-import { createDefaultBoard, DEFAULT_CARD_TYPES, TEAM_PALETTE } from '../board/defaults'
+import { createDefaultBoard, DEFAULT_CARD_TYPES, PROTECTED_CARD_TYPE_IDS, TEAM_PALETTE } from '../board/defaults'
 import { isValidHex } from '../lib/cardTypeStyle'
 
 function move<T>(list: T[], from: number, to: number): T[] {
@@ -139,7 +139,10 @@ export const useBoardStore = create<BoardStoreState>((set, get) => ({
     })),
   moveCardType: (id, toIndex) =>
     set((s) => ({ cardTypes: move(s.cardTypes, s.cardTypes.findIndex((t) => t.id === id), toIndex) })),
-  removeCardType: (id) => set((s) => ({ cardTypes: s.cardTypes.filter((t) => t.id !== id) })),
+  removeCardType: (id) => {
+    if (PROTECTED_CARD_TYPE_IDS.includes(id)) return
+    set((s) => ({ cardTypes: s.cardTypes.filter((t) => t.id !== id) }))
+  },
   restoreDefaultCardTypes: () => {
     const have = new Set(get().cardTypes.map((t) => t.id))
     const missing = DEFAULT_CARD_TYPES.filter((t) => !have.has(t.id)).map((t) => ({ ...t }))

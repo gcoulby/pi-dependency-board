@@ -28,7 +28,7 @@ export interface BoardLayout {
 export interface Cell {
   laneId: LaneId
   sprintId: SprintId
-  /** Start, mid or end of the sprint: three invisible sub-columns per sprint. */
+  /** Start or end of the sprint: two sub-columns per sprint. */
   slot: SprintSlot
 }
 

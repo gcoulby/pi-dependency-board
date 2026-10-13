@@ -14,7 +14,7 @@ export interface NewCardValues {
   size: 's' | 'm' | 'l';
 }
 
-const SLOT_LABEL = { start: 'Start of sprint', mid: 'Mid sprint', end: 'End of sprint' } as const;
+const SLOT_LABEL = { start: 'Start of sprint', end: 'End of sprint' } as const;
 
 interface Props {
   cell: Cell;
