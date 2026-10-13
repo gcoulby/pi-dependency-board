@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0d1117;
+  color: #e6edf3;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  overflow: hidden;
+}
+
+/* ── React Flow chrome ─────────────────────────────────────────────────────── */
+
+.react-flow__renderer {
+  background: #0d1117;
+}
+
+.react-flow__controls {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  box-shadow: none;
+}
+
+.react-flow__controls-button {
+  background: #161b22;
+  border-bottom: 1px solid #30363d;
+  color: #8b949e;
+  fill: #8b949e;
+}
+
+.react-flow__controls-button:hover {
+  background: #1c2333;
+  fill: #e6edf3;
+}
+
+.react-flow__minimap {
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #30363d;
+}
+
+/* ── Connection handles ────────────────────────────────────────────────────── */
+/*
+  `in` sits on the left edge and `out` on the right, because direction matters:
+  the provider's `out` connects to the dependant's `in`. Small dots, visible on
+  hover, selection or while a connection is being drawn.
+*/
+
+.react-flow__handle {
+  width: 9px !important;
+  height: 9px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border-radius: 50% !important;
+  background: #8b949e !important;
+  border: 2px solid #0d1117 !important;
+  cursor: crosshair !important;
+  opacity: 0;
+  transition: opacity 0.12s ease, background 0.12s ease !important;
+  z-index: 10;
+}
+
+.react-flow__node:hover .react-flow__handle,
+.react-flow__node.selected .react-flow__handle,
+.react-flow.connecting .react-flow__handle {
+  opacity: 1;
+}
+
+.react-flow__handle:hover,
+.react-flow__handle.connectingfrom,
+.react-flow__handle.connectingto {
+  background: #fbbf24 !important;
+  opacity: 1;
+}
+
+/* Cards keep their own selection ring */
+.react-flow__node:focus,
+.react-flow__node:focus-visible {
+  outline: none;
+}
+
+/* ── Matrix layer ──────────────────────────────────────────────────────────── */
+/* The lanes sit behind the cards and edges, and never take the pointer. */
+
+.react-flow__viewport-portal {
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ── Minimap nodes — visible against the dark background ──────────────────── */
+
+.react-flow__minimap-node {
+  fill: #3a4050;
+  stroke: none;
+}
