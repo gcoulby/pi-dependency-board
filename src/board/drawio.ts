@@ -1,6 +1,6 @@
 import type { BoardConfig, Card, Dependency } from '../types'
 import { EXTERNAL_LANE_ID } from '../types'
-import { CARD_H, CARD_W, HEADER_H, LABEL_COL_W, SLOT_W, SLOTS } from './constants'
+import { CARD_W, HEADER_H, SLOT_W, SLOTS } from './constants'
 import { checkSchedule } from './dependencies'
 import { computeLayout } from './layout'
 import { pickSides, type Side } from './edgeRoute'
@@ -29,8 +29,8 @@ const fmtDate = (iso?: string) =>
  * type colours, with dependency arrows styled by state and schedule check.
  * Geometry comes straight from computeLayout, so the two can never drift apart.
  */
-export function boardToDrawio(config: BoardConfig, cards: Card[], dependencies: Dependency[]): string {
-  const layout = computeLayout(config, cards)
+export function boardToDrawio(config: BoardConfig, cards: Card[], dependencies: Dependency[], heightOf?: (card: Card) => number, labelW?: number): string {
+  const layout = computeLayout(config, cards, heightOf, labelW)
   const cells: string[] = []
   let n = 2
   const nextId = () => `n${n++}`
@@ -79,7 +79,7 @@ export function boardToDrawio(config: BoardConfig, cards: Card[], dependencies: 
   vertex(
     `<font color="#8b949e" style="font-size:9px">PROGRAMME INCREMENT</font><br><b>${html(config.pi.name)}</b>`,
     `rounded=0;whiteSpace=wrap;html=1;fillColor=#161b22;strokeColor=#30363d;fontColor=${text};fontSize=12;align=left;spacingLeft=12;`,
-    0, 0, LABEL_COL_W, HEADER_H,
+    0, 0, layout.labelW, HEADER_H,
   )
   layout.rows.forEach((row) => {
     const external = row.laneId === EXTERNAL_LANE_ID
@@ -87,7 +87,7 @@ export function boardToDrawio(config: BoardConfig, cards: Card[], dependencies: 
     vertex(
       `<b>${html(name)}</b>`,
       `rounded=0;whiteSpace=wrap;html=1;fillColor=${external ? '#131a24' : '#161b22'};strokeColor=${external ? '#3d444d' : '#30363d'};${external ? 'dashed=1;' : ''}fontColor=${text};fontSize=12;align=left;verticalAlign=top;spacingLeft=14;spacingTop=8;`,
-      0, row.y, LABEL_COL_W, row.h,
+      0, row.y, layout.labelW, row.h,
     )
     if (!external) vertex('', `rounded=0;html=1;fillColor=${teamColour.get(row.laneId) ?? '#58a6ff'};strokeColor=none;`, 0, row.y, 4, row.h)
   })
@@ -97,7 +97,7 @@ export function boardToDrawio(config: BoardConfig, cards: Card[], dependencies: 
   cards.forEach((card) => {
     const pos = layout.cardPos[card.id]
     if (!pos) return
-    const h = CARD_H
+    const h = layout.cardH[card.id]
     const type = typeById.get(card.typeId)
     const colour = type?.colour ?? '#8b949e'
     const external = card.laneId === EXTERNAL_LANE_ID
@@ -129,7 +129,7 @@ export function boardToDrawio(config: BoardConfig, cards: Card[], dependencies: 
     const label = [check === 'conflict' ? 'conflict' : check === 'same-sprint' ? 'same sprint' : undefined, dep.label].filter(Boolean).join(' · ')
     const fp = layout.cardPos[dep.from]
     const tp = layout.cardPos[dep.to]
-    const sides = pickSides({ x: fp.x, y: fp.y, h: CARD_H }, { x: tp.x, y: tp.y, h: CARD_H })
+    const sides = pickSides({ x: fp.x, y: fp.y, h: layout.cardH[dep.from] }, { x: tp.x, y: tp.y, h: layout.cardH[dep.to] })
     const anchor = (side: Side, kind: 'exit' | 'entry') => {
       const [x, y] = { top: [0.5, 0], bottom: [0.5, 1], left: [0, 0.5], right: [1, 0.5] }[side]
       return `${kind}X=${x};${kind}Y=${y};`

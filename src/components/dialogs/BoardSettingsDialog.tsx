@@ -16,9 +16,9 @@ interface Props {
   onClose: () => void;
 }
 
-const field = 'bg-[#0d1117] border border-[#30363d] rounded px-2.5 py-1.5 text-[#e6edf3] text-[13px] placeholder-[#484f58] focus:outline-none focus:border-amber-400/60';
-const label = 'block text-[10px] uppercase tracking-wider text-[#8b949e] mb-1.5 font-mono';
-const iconBtn = 'p-1 rounded text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#21262d] disabled:opacity-25 disabled:hover:bg-transparent disabled:hover:text-[#8b949e]';
+const field = 'bg-[var(--c-canvas)] border border-[color:var(--c-border)] rounded px-2.5 py-1.5 text-[color:var(--c-text)] text-[0.8125rem] placeholder-[var(--c-text-faint)] focus:outline-none focus:border-amber-400/60';
+const label = 'block text-[0.625rem] uppercase tracking-wider text-[color:var(--c-text-muted)] mb-1.5 font-mono';
+const iconBtn = 'p-1 rounded text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)] hover:bg-[var(--c-subtle)] disabled:opacity-25 disabled:hover:bg-transparent disabled:hover:text-[color:var(--c-text-muted)]';
 
 // ── Colour picker: presets plus a native input ───────────────────────────────
 
@@ -33,14 +33,14 @@ function ColourPicker({ value, onChange }: { value: string; onChange: (hex: stri
           title={hex}
           aria-label={`Colour ${hex}`}
           className="w-4 h-4 rounded-sm border"
-          style={{ background: hex, borderColor: value.toLowerCase() === hex ? '#e6edf3' : 'transparent' }}
+          style={{ background: hex, borderColor: value.toLowerCase() === hex ? 'var(--c-text)' : 'transparent' }}
         />
       ))}
       <input
         type="color"
         value={isValidHex(value) ? value : '#58a6ff'}
         onChange={(e) => { if (isValidHex(e.target.value)) onChange(e.target.value); }}
-        className="w-5 h-5 p-0 bg-transparent border border-[#30363d] rounded cursor-pointer"
+        className="w-5 h-5 p-0 bg-transparent border border-[color:var(--c-border)] rounded cursor-pointer"
         aria-label="Custom colour"
       />
     </div>
@@ -63,22 +63,22 @@ interface ResolveProps {
 function ResolvePrompt({ title, message, options, allowDelete, deleteLabel, confirmLabel, onConfirm, onCancel }: ResolveProps) {
   const [choice, setChoice] = useState<string>(options[0]?.value ?? (allowDelete ? 'delete' : ''));
   return (
-    <div className="absolute inset-0 bg-[#0d1117]/85 flex items-center justify-center z-10 rounded-lg">
-      <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-5 w-[360px] shadow-2xl">
-        <h4 className="text-[#e6edf3] text-sm font-semibold mb-1.5">{title}</h4>
-        <p className="text-[12px] text-[#8b949e] mb-4 leading-relaxed">{message}</p>
+    <div className="absolute inset-0 bg-[var(--c-canvas)]/85 flex items-center justify-center z-10 rounded-lg">
+      <div className="bg-[var(--c-surface)] border border-[color:var(--c-border)] rounded-lg p-5 w-[360px] shadow-2xl">
+        <h4 className="text-[color:var(--c-text)] text-sm font-semibold mb-1.5">{title}</h4>
+        <p className="text-[0.75rem] text-[color:var(--c-text-muted)] mb-4 leading-relaxed">{message}</p>
         <select value={choice} onChange={(e) => setChoice(e.target.value)} className={`${field} w-full mb-5`}>
           {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           {allowDelete && <option value="delete">{deleteLabel ?? 'Delete the cards'}</option>}
         </select>
         <div className="flex justify-end gap-3">
-          <button onClick={onCancel} className="px-3 py-1.5 text-sm text-[#8b949e] hover:text-[#e6edf3]">Cancel</button>
+          <button onClick={onCancel} className="px-3 py-1.5 text-sm text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)]">Cancel</button>
           <button
             onClick={() => onConfirm(choice)}
             disabled={!choice}
             className={[
               'px-3 py-1.5 text-sm font-semibold rounded disabled:opacity-40',
-              choice === 'delete' ? 'bg-red-500 text-white hover:bg-red-400' : 'bg-amber-400 text-[#0d1117] hover:bg-amber-300',
+              choice === 'delete' ? 'bg-red-500 text-white hover:bg-red-400' : 'bg-amber-400 text-[color:var(--c-on-accent)] hover:bg-amber-300',
             ].join(' ')}
           >
             {choice === 'delete' ? 'Delete cards' : confirmLabel}
@@ -100,7 +100,7 @@ function TeamsTab({ onResolve }: { onResolve: (id: string) => void }) {
     <div>
       <div className="space-y-2">
         {teams.map((t, i) => (
-          <div key={t.id} className="flex items-center gap-2 p-2 rounded border border-[#30363d] bg-[#0d1117]">
+          <div key={t.id} className="flex items-center gap-2 p-2 rounded border border-[color:var(--c-border)] bg-[var(--c-canvas)]">
             <span className="w-1 self-stretch rounded-full shrink-0" style={{ background: t.colour }} />
             <div className="flex-1 min-w-0 space-y-2">
               <input
@@ -125,17 +125,17 @@ function TeamsTab({ onResolve }: { onResolve: (id: string) => void }) {
           </div>
         ))}
       </div>
-      <button onClick={() => addTeam()} className="mt-3 flex items-center gap-1.5 text-[12px] text-[#8b949e] hover:text-amber-400">
+      <button onClick={() => addTeam()} className="mt-3 flex items-center gap-1.5 text-[0.75rem] text-[color:var(--c-text-muted)] hover:text-amber-400">
         <Plus size={12} /> Add team
       </button>
 
-      <div className="mt-6 pt-4 border-t border-[#21262d]">
+      <div className="mt-6 pt-4 border-t border-[color:var(--c-subtle)]">
         <label className={label}>External row label</label>
         <div className="flex items-center gap-2">
-          <ExternalLink size={13} className="text-[#8b949e]" />
+          <ExternalLink size={13} className="text-[color:var(--c-text-muted)]" />
           <input value={externalLabel} onChange={(e) => setExternalLabel(e.target.value)} className={`${field} flex-1`} />
         </div>
-        <p className="text-[11px] text-[#484f58] mt-2">The external row is not a team. It always sits last and cannot be deleted or reordered.</p>
+        <p className="text-[0.6875rem] text-[color:var(--c-text-faint)] mt-2">The external row is not a team. It always sits last and cannot be deleted or reordered.</p>
       </div>
     </div>
   );
@@ -167,21 +167,21 @@ function SprintsTab({ onResolve }: { onResolve: (id: string) => void }) {
         </div>
       </div>
       {offerFill && pi.startDate && (
-        <div className="flex items-center gap-3 mb-3 px-3 py-2 rounded border border-amber-400/30 bg-amber-400/5 text-[12px] text-[#8b949e]">
+        <div className="flex items-center gap-3 mb-3 px-3 py-2 rounded border border-amber-400/30 bg-amber-400/5 text-[0.75rem] text-[color:var(--c-text-muted)]">
           <span className="flex-1">Fill sprint dates from this start date in two-week blocks? This replaces existing dates.</span>
-          <button onClick={() => { autofillSprintDates(); setOfferFill(false); }} className="px-2.5 py-1 rounded bg-amber-400 text-[#0d1117] font-semibold hover:bg-amber-300">Fill</button>
-          <button onClick={() => setOfferFill(false)} className="text-[#8b949e] hover:text-[#e6edf3]">No thanks</button>
+          <button onClick={() => { autofillSprintDates(); setOfferFill(false); }} className="px-2.5 py-1 rounded bg-amber-400 text-[color:var(--c-on-accent)] font-semibold hover:bg-amber-300">Fill</button>
+          <button onClick={() => setOfferFill(false)} className="text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)]">No thanks</button>
         </div>
       )}
 
       <div className="space-y-2 mt-4">
         {sprints.map((sp, i) => (
-          <div key={sp.id} className="flex items-center gap-2 p-2 rounded border border-[#30363d] bg-[#0d1117]">
+          <div key={sp.id} className="flex items-center gap-2 p-2 rounded border border-[color:var(--c-border)] bg-[var(--c-canvas)]">
             <div className="flex-1 min-w-0 grid grid-cols-[1fr_130px_130px] gap-2 items-center">
               <input value={sp.name} onChange={(e) => updateSprint(sp.id, { name: e.target.value })} className={field} aria-label="Sprint name" />
               <input type="date" value={sp.start ?? ''} onChange={(e) => updateSprint(sp.id, { start: e.target.value || undefined })} className={field} aria-label="Start" />
               <input type="date" value={sp.end ?? ''} onChange={(e) => updateSprint(sp.id, { end: e.target.value || undefined })} className={field} aria-label="End" />
-              <label className="col-span-3 flex items-center gap-2 text-[11px] text-[#8b949e] select-none cursor-pointer">
+              <label className="col-span-3 flex items-center gap-2 text-[0.6875rem] text-[color:var(--c-text-muted)] select-none cursor-pointer">
                 <input type="checkbox" checked={Boolean(sp.isInnovation)} onChange={(e) => updateSprint(sp.id, { isInnovation: e.target.checked || undefined })} className="accent-amber-400" />
                 Innovation and Planning sprint
               </label>
@@ -202,7 +202,7 @@ function SprintsTab({ onResolve }: { onResolve: (id: string) => void }) {
           </div>
         ))}
       </div>
-      <button onClick={() => addSprint()} className="mt-3 flex items-center gap-1.5 text-[12px] text-[#8b949e] hover:text-amber-400">
+      <button onClick={() => addSprint()} className="mt-3 flex items-center gap-1.5 text-[0.75rem] text-[color:var(--c-text-muted)] hover:text-amber-400">
         <Plus size={12} /> Add sprint
       </button>
     </div>
@@ -222,15 +222,15 @@ function TypesTab({ onResolve }: { onResolve: (id: string) => void }) {
           const st = cardTypeStyle(t.colour);
           const Icon = CARD_TYPE_ICONS[t.icon];
           return (
-            <div key={t.id} className="flex items-start gap-2 p-2 rounded border border-[#30363d] bg-[#0d1117]">
+            <div key={t.id} className="flex items-start gap-2 p-2 rounded border border-[color:var(--c-border)] bg-[var(--c-canvas)]">
               <span className="w-1 self-stretch rounded-full shrink-0" style={{ background: st.bar }} />
               <div className="flex-1 min-w-0 space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 px-1.5 py-1 rounded border text-[10px] font-mono shrink-0" style={{ color: st.text, background: st.bg, borderColor: st.border }}>
+                  <span className="inline-flex items-center gap-1 px-1.5 py-1 rounded border text-[0.625rem] font-mono shrink-0" style={{ color: st.text, background: st.bg, borderColor: st.border }}>
                     <Icon size={11} />
                   </span>
                   <input value={t.name} onChange={(e) => updateCardType(t.id, { name: e.target.value })} className={`${field} flex-1 min-w-0`} aria-label="Type name" />
-                  <span className="text-[10px] font-mono text-[#484f58] shrink-0">{countCardsOfType(t.id)} cards</span>
+                  <span className="text-[0.625rem] font-mono text-[color:var(--c-text-faint)] shrink-0">{countCardsOfType(t.id)} cards</span>
                 </div>
                 <ColourPicker value={t.colour} onChange={(hex) => updateCardType(t.id, { colour: hex })} />
                 <div className="flex flex-wrap gap-1">
@@ -245,7 +245,7 @@ function TypesTab({ onResolve }: { onResolve: (id: string) => void }) {
                         onClick={() => updateCardType(t.id, { icon: key })}
                         className={[
                           'p-1 rounded border',
-                          t.icon === key ? 'border-amber-400/70 text-amber-400' : 'border-[#30363d] text-[#8b949e] hover:text-[#e6edf3]',
+                          t.icon === key ? 'border-amber-400/70 text-amber-400' : 'border-[color:var(--c-border)] text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)]',
                         ].join(' ')}
                       >
                         <I size={12} />
@@ -272,18 +272,18 @@ function TypesTab({ onResolve }: { onResolve: (id: string) => void }) {
         })}
       </div>
       <div className="mt-3 flex items-center gap-4">
-        <button onClick={() => addCardType()} className="flex items-center gap-1.5 text-[12px] text-[#8b949e] hover:text-amber-400">
+        <button onClick={() => addCardType()} className="flex items-center gap-1.5 text-[0.75rem] text-[color:var(--c-text-muted)] hover:text-amber-400">
           <Plus size={12} /> Add card type
         </button>
         <button
           onClick={() => restoreDefaultCardTypes()}
           title="Adds back any default type that is missing, such as Requirement and Dependency. Existing types are untouched."
-          className="text-[12px] text-[#8b949e] hover:text-amber-400"
+          className="text-[0.75rem] text-[color:var(--c-text-muted)] hover:text-amber-400"
         >
           Restore missing default types
         </button>
       </div>
-      <p className="text-[11px] text-[#484f58] mt-3">Type is always shown as icon plus label, so the board still reads in greyscale.</p>
+      <p className="text-[0.6875rem] text-[color:var(--c-text-faint)] mt-3">Type is always shown as icon plus label, so the board still reads in greyscale.</p>
     </div>
   );
 }
@@ -367,21 +367,21 @@ export function BoardSettingsDialog({ initialTab = 'teams', onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 bg-[#0d1117]/80 flex items-center justify-center z-50 p-4">
-      <div className="relative bg-[#161b22] border border-[#30363d] rounded-lg shadow-2xl w-full max-w-[640px] max-h-[88vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#30363d] shrink-0">
-          <h3 className="text-[#e6edf3] font-semibold">Board settings</h3>
-          <button onClick={onClose} className="text-[#8b949e] hover:text-[#e6edf3]" aria-label="Close"><X size={16} /></button>
+    <div className="fixed inset-0 bg-[var(--c-canvas)]/80 flex items-center justify-center z-50 p-4">
+      <div className="relative bg-[var(--c-surface)] border border-[color:var(--c-border)] rounded-lg shadow-2xl w-full max-w-[640px] max-h-[88vh] flex flex-col">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[color:var(--c-border)] shrink-0">
+          <h3 className="text-[color:var(--c-text)] font-semibold">Board settings</h3>
+          <button onClick={onClose} className="text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)]" aria-label="Close"><X size={16} /></button>
         </div>
 
-        <div className="flex gap-1 px-6 pt-3 border-b border-[#30363d] shrink-0">
+        <div className="flex gap-1 px-6 pt-3 border-b border-[color:var(--c-border)] shrink-0">
           {tabs.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
               className={[
-                'px-3 py-2 text-[12px] -mb-px border-b-2 transition-colors',
-                tab === t.id ? 'border-amber-400 text-amber-400' : 'border-transparent text-[#8b949e] hover:text-[#e6edf3]',
+                'px-3 py-2 text-[0.75rem] -mb-px border-b-2 transition-colors',
+                tab === t.id ? 'border-amber-400 text-amber-400' : 'border-transparent text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)]',
               ].join(' ')}
             >
               {t.label}
@@ -395,8 +395,8 @@ export function BoardSettingsDialog({ initialTab = 'teams', onClose }: Props) {
           {tab === 'types' && <TypesTab onResolve={(id) => setPending({ kind: 'type', id })} />}
         </div>
 
-        <div className="px-6 py-3 border-t border-[#30363d] text-right shrink-0">
-          <button onClick={onClose} className="bg-amber-400 hover:bg-amber-300 px-5 py-1.5 rounded font-semibold text-[#0d1117] text-sm transition-colors">Done</button>
+        <div className="px-6 py-3 border-t border-[color:var(--c-border)] text-right shrink-0">
+          <button onClick={onClose} className="bg-amber-400 hover:bg-amber-300 px-5 py-1.5 rounded font-semibold text-[color:var(--c-on-accent)] text-sm transition-colors">Done</button>
         </div>
 
         {prompt}

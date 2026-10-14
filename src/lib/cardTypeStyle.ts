@@ -26,7 +26,8 @@ export function cardTypeStyle(hex: string) {
     bar: h,
     bg: `${h}1f`, // roughly 12% alpha
     border: `${h}59`, // roughly 35% alpha
-    text: h,
+    // Keeps the full colour in dark mode and darkens it in light mode, so text stays legible on white
+    text: `color-mix(in srgb, ${h} var(--type-mix, 100%), #000)`,
   }
 }
 

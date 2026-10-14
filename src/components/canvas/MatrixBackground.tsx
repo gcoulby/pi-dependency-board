@@ -4,7 +4,7 @@ import { ExternalLink, Plus } from 'lucide-react'
 import type { BoardConfig, LaneId, SprintId } from '../../types'
 import { EXTERNAL_LANE_ID } from '../../types'
 import type { BoardLayout, Cell } from '../../board/layout'
-import { EXTERNAL_GAP, HEADER_H, LABEL_COL_W, SLOT_W, SLOTS } from '../../board/constants'
+import { EXTERNAL_GAP, HEADER_H, SLOT_W, SLOTS } from '../../board/constants'
 import { slotIndex } from '../../board/slots'
 import { useBoardStore } from '../../store/boardStore'
 
@@ -37,9 +37,9 @@ export const MatrixBackground = memo(function MatrixBackground({ layout, hoverCe
                 top: row.y,
                 width: layout.width,
                 height: row.h,
-                background: external ? '#10161f' : i % 2 === 0 ? '#0d1117' : '#0f141b',
-                borderBottom: external ? '1px dashed #3d444d' : '1px solid #30363d',
-                borderTop: external ? '1px dashed #3d444d' : i === 0 ? '1px solid #30363d' : undefined,
+                background: external ? 'var(--c-row-ext)' : i % 2 === 0 ? 'var(--c-canvas)' : 'var(--c-row-alt)',
+                borderBottom: external ? '1px dashed var(--c-border-strong)' : '1px solid var(--c-border)',
+                borderTop: external ? '1px dashed var(--c-border-strong)' : i === 0 ? '1px solid var(--c-border)' : undefined,
                 opacity: dimLane && dimLane !== row.laneId ? 0.45 : 1,
               }}
             />
@@ -48,7 +48,7 @@ export const MatrixBackground = memo(function MatrixBackground({ layout, hoverCe
         {layout.cols.map((col) => (
           <div
             key={col.sprintId}
-            style={{ position: 'absolute', left: col.x, top: HEADER_H, width: 1, height: layout.height - HEADER_H, background: '#30363d' }}
+            style={{ position: 'absolute', left: col.x, top: HEADER_H, width: 1, height: layout.height - HEADER_H, background: 'var(--c-border)' }}
           />
         ))}
         {layout.cols.length > 0 && (
@@ -59,7 +59,7 @@ export const MatrixBackground = memo(function MatrixBackground({ layout, hoverCe
               top: HEADER_H,
               width: 1,
               height: layout.height - HEADER_H,
-              background: '#30363d',
+              background: 'var(--c-border)',
             }}
           />
         )}
@@ -74,7 +74,7 @@ export const MatrixBackground = memo(function MatrixBackground({ layout, hoverCe
                 top: HEADER_H,
                 width: 0,
                 height: layout.height - HEADER_H,
-                borderLeft: `1px dashed ${hoverCell ? '#3d444d' : '#1d242d'}`,
+                borderLeft: `1px dashed ${hoverCell ? 'var(--c-border-strong)' : 'var(--c-divider)'}`,
               }}
             />
           )),
@@ -125,7 +125,7 @@ function InlineEdit({
         if (e.key === 'Escape') onCancel()
       }}
       onDoubleClick={(e) => e.stopPropagation()}
-      className={`bg-[#0d1117] border border-amber-400/60 rounded px-1.5 py-0.5 text-[#e6edf3] focus:outline-none min-w-0 w-full ${className ?? ''}`}
+      className={`bg-[var(--c-canvas)] border border-amber-400/60 rounded px-1.5 py-0.5 text-[color:var(--c-text)] focus:outline-none min-w-0 w-full ${className ?? ''}`}
     />
   )
 }
@@ -162,7 +162,7 @@ export const StickyHeaders = memo(function StickyHeaders({ layout, config, dimLa
   return (
     <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 5, overflow: 'hidden' }}>
       {/* Sprint strip: follows x and zoom, pinned to the top */}
-      <div style={{ position: 'absolute', left: 0, top: 0, right: 0, height: HEADER_H * zoom, background: '#161b22', borderBottom: '1px solid #30363d' }}>
+      <div style={{ position: 'absolute', left: 0, top: 0, right: 0, height: HEADER_H * zoom, background: 'var(--c-surface)', borderBottom: '1px solid var(--c-border)' }}>
         {layout.cols.map((col) => {
           const sp = sprintsById.get(col.sprintId)
           if (!sp) return null
@@ -173,26 +173,26 @@ export const StickyHeaders = memo(function StickyHeaders({ layout, config, dimLa
               key={sp.id}
               onDoubleClick={() => setEditing({ kind: 'sprint', id: sp.id })}
               title="Double-click to rename"
-              style={{ position: 'absolute', left: x + col.x * zoom, top: 0, pointerEvents: 'auto', borderLeft: '1px solid #30363d' }}
+              style={{ position: 'absolute', left: x + col.x * zoom, top: 0, pointerEvents: 'auto', borderLeft: '1px solid var(--c-border)' }}
             >
               <Scaled w={col.w} h={HEADER_H} zoom={zoom}>
-                <div className="px-3 h-full flex flex-col justify-center overflow-hidden">
+                <div className="px-[0.75em] h-full flex flex-col justify-center overflow-hidden" style={{ fontSize: 'calc(16px * var(--fs, 1))' }}>
                   {isEditing ? (
                     <InlineEdit
                       value={sp.name}
-                      className="text-[12px] font-semibold"
+                      className="text-[0.75em] font-semibold"
                       onCommit={(v) => { updateSprint(sp.id, { name: v }); setEditing(null) }}
                       onCancel={() => setEditing(null)}
                     />
                   ) : (
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-[12px] font-semibold text-[#e6edf3] truncate">{sp.name}</span>
+                    <div className="flex items-center gap-[0.375em] min-w-0">
+                      <span className="text-[0.75em] font-semibold text-[color:var(--c-text)] truncate">{sp.name}</span>
                       {sp.isInnovation && (
-                        <span className="shrink-0 text-[9px] font-mono px-1 py-px rounded border border-[#3fb950]/50 text-[#3fb950] bg-[#3fb950]/10">IP</span>
+                        <span className="shrink-0 text-[0.5625em] font-mono px-[0.25em] py-px rounded border border-[#3fb950]/50 text-[#3fb950] bg-[#3fb950]/10">IP</span>
                       )}
                     </div>
                   )}
-                  {dates && !isEditing && <div className="text-[10px] font-mono text-[#484f58] truncate">{dates}</div>}
+                  {dates && !isEditing && <div className="text-[0.625em] font-mono text-[color:var(--c-text-faint)] truncate">{dates}</div>}
                 </div>
               </Scaled>
             </div>
@@ -205,7 +205,7 @@ export const StickyHeaders = memo(function StickyHeaders({ layout, config, dimLa
                 <button
                   onClick={() => addSprint()}
                   title="Add sprint"
-                  className="flex items-center gap-1 px-2 py-1 text-[11px] text-[#8b949e] hover:text-amber-400 hover:bg-[#1c2333] rounded border border-dashed border-[#30363d] whitespace-nowrap"
+                  className="flex items-center gap-1 px-2 py-1 text-[0.6875rem] text-[color:var(--c-text-muted)] hover:text-amber-400 hover:bg-[var(--c-raised)] rounded border border-dashed border-[color:var(--c-border)] whitespace-nowrap"
                 >
                   <Plus size={11} /> Sprint
                 </button>
@@ -216,7 +216,7 @@ export const StickyHeaders = memo(function StickyHeaders({ layout, config, dimLa
       </div>
 
       {/* Team column: follows y and zoom, pinned to the left */}
-      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: LABEL_COL_W * zoom, background: '#161b22', borderRight: '1px solid #30363d' }}>
+      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: layout.labelW * zoom, background: 'var(--c-surface)', borderRight: '1px solid var(--c-border)' }}>
         {layout.rows.map((row) => {
           const external = row.laneId === EXTERNAL_LANE_ID
           const team = external ? null : teamsById.get(row.laneId)
@@ -229,27 +229,27 @@ export const StickyHeaders = memo(function StickyHeaders({ layout, config, dimLa
               title="Double-click to rename"
               style={{
                 position: 'absolute', left: 0, top: y + row.y * zoom, pointerEvents: 'auto',
-                borderTop: external ? '1px dashed #3d444d' : '1px solid #30363d',
-                borderBottom: external ? '1px dashed #3d444d' : undefined,
-                background: external ? '#131a24' : '#161b22',
+                borderTop: external ? '1px dashed var(--c-border-strong)' : '1px solid var(--c-border)',
+                borderBottom: external ? '1px dashed var(--c-border-strong)' : undefined,
+                background: external ? 'var(--c-row-ext-label)' : 'var(--c-surface)',
                 opacity: dimLane && dimLane !== row.laneId ? 0.45 : 1,
               }}
             >
-              <Scaled w={LABEL_COL_W} h={row.h} zoom={zoom}>
-                <div className="flex h-full overflow-hidden">
+              <Scaled w={layout.labelW} h={row.h} zoom={zoom}>
+                <div className="flex h-full overflow-hidden" style={{ fontSize: 'calc(16px * var(--fs, 1))' }}>
                   <div style={{ width: 3, background: external ? 'transparent' : team!.colour }} className="shrink-0" />
-                  <div className="flex-1 min-w-0 px-3 pt-2.5">
+                  <div className="flex-1 min-w-0 px-[0.75em] pt-[0.625em]">
                     {isEditing ? (
                       <InlineEdit
                         value={external ? config.externalLane.label : team!.name}
-                        className="text-[12px] font-semibold"
+                        className="text-[0.75em] font-semibold"
                         onCommit={(v) => { if (external) setExternalLabel(v); else updateTeam(row.laneId, { name: v }); setEditing(null) }}
                         onCancel={() => setEditing(null)}
                       />
                     ) : (
-                      <div className="flex items-start gap-1.5">
-                        {external && <ExternalLink size={12} className="text-[#8b949e] mt-0.5 shrink-0" />}
-                        <span className="text-[12px] font-semibold text-[#e6edf3] leading-tight break-words">
+                      <div className="flex items-start gap-[0.375em]">
+                        {external && <ExternalLink size="0.75em" className="text-[color:var(--c-text-muted)] mt-0.5 shrink-0" />}
+                        <span className="text-[0.75em] font-semibold text-[color:var(--c-text)] leading-tight break-words">
                           {external ? config.externalLane.label : team!.name}
                         </span>
                       </div>
@@ -262,12 +262,12 @@ export const StickyHeaders = memo(function StickyHeaders({ layout, config, dimLa
         })}
         {lastTeamRow && (
           <div style={{ position: 'absolute', left: 0, top: y + (lastTeamRow.y + lastTeamRow.h) * zoom, pointerEvents: 'auto' }}>
-            <Scaled w={LABEL_COL_W} h={EXTERNAL_GAP} zoom={zoom}>
+            <Scaled w={layout.labelW} h={EXTERNAL_GAP} zoom={zoom}>
               <div className="h-full flex items-center px-3.5">
                 <button
                   onClick={() => addTeam()}
                   title="Add team"
-                  className="flex items-center gap-1 px-2 py-1 text-[11px] text-[#8b949e] hover:text-amber-400 hover:bg-[#1c2333] rounded border border-dashed border-[#30363d] whitespace-nowrap"
+                  className="flex items-center gap-1 px-2 py-1 text-[0.6875rem] text-[color:var(--c-text-muted)] hover:text-amber-400 hover:bg-[var(--c-raised)] rounded border border-dashed border-[color:var(--c-border)] whitespace-nowrap"
                 >
                   <Plus size={11} /> Team
                 </button>
@@ -278,11 +278,11 @@ export const StickyHeaders = memo(function StickyHeaders({ layout, config, dimLa
       </div>
 
       {/* Corner */}
-      <div style={{ position: 'absolute', left: 0, top: 0, background: '#161b22', borderRight: '1px solid #30363d', borderBottom: '1px solid #30363d' }}>
-        <Scaled w={LABEL_COL_W} h={HEADER_H} zoom={zoom}>
-          <div className="px-3 h-full flex flex-col justify-center overflow-hidden">
-            <div className="text-[9px] uppercase tracking-wider text-[#484f58] font-mono">Programme increment</div>
-            <div className="text-[12px] font-semibold text-[#e6edf3] truncate">{config.pi.name}</div>
+      <div style={{ position: 'absolute', left: 0, top: 0, background: 'var(--c-surface)', borderRight: '1px solid var(--c-border)', borderBottom: '1px solid var(--c-border)' }}>
+        <Scaled w={layout.labelW} h={HEADER_H} zoom={zoom}>
+          <div className="px-[0.75em] h-full flex flex-col justify-center overflow-hidden" style={{ fontSize: 'calc(16px * var(--fs, 1))' }}>
+            <div className="text-[0.5625em] uppercase tracking-wider text-[color:var(--c-text-faint)] font-mono leading-none">PI</div>
+            <div className="text-[0.75em] font-semibold text-[color:var(--c-text)] truncate leading-tight">{config.pi.name}</div>
           </div>
         </Scaled>
       </div>

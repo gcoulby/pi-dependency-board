@@ -1,13 +1,69 @@
 @import "tailwindcss";
 
+/* ── Theme tokens ──────────────────────────────────────────────────────────── */
+/* Dark is the default. `data-theme="light"` on <html> swaps the whole set. */
+
+:root {
+  color-scheme: dark;
+  --c-canvas: #0d1117;
+  --c-surface: #161b22;
+  --c-raised: #1c2333;
+  --c-subtle: #21262d;
+  --c-border: #30363d;
+  --c-border-strong: #3d444d;
+  --c-text: #e6edf3;
+  --c-text-soft: #c9d1d9;
+  --c-text-mid: #6e7681;
+  --c-text-muted: #8b949e;
+  --c-text-faint: #484f58;
+  --c-text-dim: #3a3f47;
+  --c-divider: #1d242d;
+  --c-row-alt: #0f141b;
+  --c-row-ext: #10161f;
+  --c-row-ext-label: #131a24;
+  --c-minimap: #3a4050;
+  --c-on-accent: #0d1117;
+  /* How much of a card type's colour is kept for text; lower in light mode for contrast */
+  --type-mix: 100%;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --c-canvas: #f6f8fa;
+  --c-surface: #ffffff;
+  --c-raised: #eff2f5;
+  --c-subtle: #e6eaee;
+  --c-border: #d0d7de;
+  --c-border-strong: #afb8c1;
+  --c-text: #1f2328;
+  --c-text-soft: #424a53;
+  --c-text-mid: #6e7781;
+  --c-text-muted: #59636e;
+  --c-text-faint: #8c959f;
+  --c-text-dim: #b1b9c1;
+  --c-divider: #e6eaee;
+  --c-row-alt: #eff2f5;
+  --c-row-ext: #eaf0f8;
+  --c-row-ext-label: #e3ebf6;
+  --c-minimap: #c8d1da;
+  --c-on-accent: #ffffff;
+  --type-mix: 58%;
+  /* Amber and red are too pale on white at their dark-theme values */
+  --color-amber-300: #bf8700;
+  --color-amber-400: #9a6700;
+  --color-red-300: #a40e26;
+  --color-red-400: #cf222e;
+  --color-red-500: #cf222e;
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  background: #0d1117;
-  color: #e6edf3;
+  background: var(--c-canvas);
+  color: var(--c-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   overflow: hidden;
 }
@@ -15,32 +71,32 @@ body {
 /* ── React Flow chrome ─────────────────────────────────────────────────────── */
 
 .react-flow__renderer {
-  background: #0d1117;
+  background: var(--c-canvas);
 }
 
 .react-flow__controls {
-  background: #161b22;
-  border: 1px solid #30363d;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
   border-radius: 6px;
   box-shadow: none;
 }
 
 .react-flow__controls-button {
-  background: #161b22;
-  border-bottom: 1px solid #30363d;
-  color: #8b949e;
-  fill: #8b949e;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  color: var(--c-text-muted);
+  fill: var(--c-text-muted);
 }
 
 .react-flow__controls-button:hover {
-  background: #1c2333;
-  fill: #e6edf3;
+  background: var(--c-raised);
+  fill: var(--c-text);
 }
 
 .react-flow__minimap {
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid #30363d;
+  border: 1px solid var(--c-border);
 }
 
 /* ── Connection handles ────────────────────────────────────────────────────── */
@@ -56,8 +112,8 @@ body {
   min-width: 0 !important;
   min-height: 0 !important;
   border-radius: 50% !important;
-  background: #8b949e !important;
-  border: 2px solid #0d1117 !important;
+  background: var(--c-text-muted) !important;
+  border: 2px solid var(--c-canvas) !important;
   cursor: crosshair !important;
   opacity: 0;
   transition: opacity 0.12s ease, background 0.12s ease !important;
@@ -94,6 +150,6 @@ body {
 /* ── Minimap nodes — visible against the dark background ──────────────────── */
 
 .react-flow__minimap-node {
-  fill: #3a4050;
+  fill: var(--c-minimap);
   stroke: none;
 }

@@ -18,8 +18,12 @@ export interface BoardLayout {
   cols: { sprintId: SprintId; x: number; w: number }[]
   rows: { laneId: LaneId; y: number; h: number }[]
   cardPos: Record<CardId, { x: number; y: number }>
+  /** Height of each card: the minimum card height, or taller when its text needs it. Width is always CARD_W. */
+  cardH: Record<CardId, number>
   width: number
   height: number
+  /** Width of the team label column. */
+  labelW: number
 }
 
 export interface Cell {
@@ -55,10 +59,15 @@ export function stackHeight(n: number, cardH: number = CARD_H): number {
  * which cell each card sits in, plus its `order` within that cell, plus its size.
  * Coordinates are relative to the top-left of the sprint-header strip.
  */
-export function computeLayout(config: BoardConfig, cards: Card[]): BoardLayout {
+export function computeLayout(
+  config: BoardConfig,
+  cards: Card[],
+  heightOf?: (card: Card) => number,
+  labelW: number = LABEL_COL_W,
+): BoardLayout {
   const cols = config.sprints.map((s, i) => ({
     sprintId: s.id,
-    x: LABEL_COL_W + i * COL_W,
+    x: labelW + i * COL_W,
     w: COL_W,
   }))
 
@@ -76,6 +85,8 @@ export function computeLayout(config: BoardConfig, cards: Card[]): BoardLayout {
 
   const rows: BoardLayout['rows'] = []
   const cardPos: BoardLayout['cardPos'] = {}
+  const cardH: BoardLayout['cardH'] = {}
+  const heightFor = (c: Card) => Math.max(CARD_H, heightOf?.(c) ?? CARD_H)
   let y = HEADER_H
 
   for (const laneId of laneIds) {
@@ -89,10 +100,12 @@ export function computeLayout(config: BoardConfig, cards: Card[]): BoardLayout {
         const x = col.x + slotIndex(slot) * SLOT_W + CELL_PAD
         let top = y + CELL_PAD
         for (const c of list) {
+          const h = heightFor(c)
           cardPos[c.id] = { x, y: top }
-          top += CARD_H + CARD_GAP
+          cardH[c.id] = h
+          top += h + CARD_GAP
         }
-        tallest = Math.max(tallest, stackHeight(list.length))
+        tallest = Math.max(tallest, stackHeightOf(list.map(heightFor)))
       }
     }
 
@@ -101,7 +114,7 @@ export function computeLayout(config: BoardConfig, cards: Card[]): BoardLayout {
     y += h
   }
 
-  return { cols, rows, cardPos, width: LABEL_COL_W + cols.length * COL_W, height: y }
+  return { cols, rows, cardPos, cardH, width: labelW + cols.length * COL_W, height: y, labelW }
 }
 
 /** The (lane, sprint, slot) cell under a point, or null for headers, label column, gaps and outside. */
@@ -125,7 +138,7 @@ export function insertIndexAt(layout: BoardLayout, cards: Card[], cell: Cell, y:
   const stack = cardsInCell(cards, cell)
   for (let i = 0; i < stack.length; i++) {
     const pos = layout.cardPos[stack[i].id]
-    if (pos && y < pos.y + CARD_H / 2) return i
+    if (pos && y < pos.y + (layout.cardH[stack[i].id] ?? CARD_H) / 2) return i
   }
   return stack.length
 }

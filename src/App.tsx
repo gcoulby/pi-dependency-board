@@ -33,6 +33,8 @@ import { SidebarPanel } from './components/panels/SidebarPanel';
 import { SearchPanel } from './components/panels/SearchPanel';
 import { useAutoSave, setCurrentFileBlob, assetMap, resetSessionData, withoutAutoSave } from './hooks/useAutoSave';
 import { clearSearchCache } from './hooks/useSearch';
+import { AppearanceControls } from './components/AppearanceControls';
+import { useUiStore } from './store/uiStore';
 import { cacheAsset, clearAssetCache } from './lib/assetCache';
 import { cardTypeIcon, cardTypeStyle } from './lib/cardTypeStyle';
 import {
@@ -49,6 +51,9 @@ import {
   HelpCircle,
   Layers2,
   Archive,
+  PanelLeft,
+  Expand,
+  Shrink,
   FileOutput,
   Lock,
   Settings,
@@ -63,7 +68,7 @@ function SaveIndicator() {
   const saveStatus  = useFileStore((s) => s.saveStatus);
   const isEncrypted = useFileStore((s) => s.isEncrypted);
   return (
-    <div className="flex items-center gap-1.5 text-[11px] font-mono">
+    <div className="flex items-center gap-1.5 text-[0.6875rem] font-mono">
       {isEncrypted && (
         <span title="File is encrypted"><Lock size={11} className="text-amber-400/70" /></span>
       )}
@@ -71,10 +76,10 @@ function SaveIndicator() {
         <><Loader2 size={12} className="animate-spin text-amber-400" /><span className="text-amber-400">saving…</span></>
       )}
       {saveStatus === 'saved' && (
-        <><CheckCircle2 size={12} className="text-[#3fb950]" /><span className="text-[#484f58]">saved</span></>
+        <><CheckCircle2 size={12} className="text-[#3fb950]" /><span className="text-[color:var(--c-text-faint)]">saved</span></>
       )}
       {saveStatus === 'unsaved' && (
-        <><Clock size={12} className="text-[#8b949e]" /><span className="text-[#484f58]">unsaved</span></>
+        <><Clock size={12} className="text-[color:var(--c-text-muted)]" /><span className="text-[color:var(--c-text-faint)]">unsaved</span></>
       )}
       {saveStatus === 'error' && (
         <><AlertCircle size={12} className="text-red-400" /><span className="text-red-400">error</span></>
@@ -95,23 +100,35 @@ interface ToolbarProps {
 }
 
 const toolbarBtn =
-  'flex items-center gap-1.5 px-2 py-1 text-[11px] text-[#8b949e] hover:text-amber-400 transition-colors rounded hover:bg-[#1c2333]';
+  'flex items-center gap-1.5 px-2 py-1 text-[0.6875rem] text-[color:var(--c-text-muted)] hover:text-amber-400 transition-colors rounded hover:bg-[var(--c-raised)]';
 
 function Toolbar({ onSearch, onFitView, onInfo, onFiles, onSettings, onExport }: ToolbarProps) {
   const manifest = useFileStore((s) => s.manifest);
+  const sidebarHidden = useUiStore((s) => s.sidebarHidden);
   return (
-    <div className="h-10 bg-[#161b22] border-b border-[#30363d] flex items-center px-4 gap-2 shrink-0">
-      <span className="text-[11px] uppercase tracking-wider text-[#484f58] font-mono mr-2">
+    <div className="h-10 bg-[var(--c-surface)] border-b border-[color:var(--c-border)] flex items-center px-4 gap-2 shrink-0">
+      <span className="text-[0.6875rem] uppercase tracking-wider text-[color:var(--c-text-faint)] font-mono mr-2">
         {manifest?.title ?? 'PI Board'}
       </span>
-      <div className="h-4 w-px bg-[#30363d]" />
+      <div className="h-4 w-px bg-[var(--c-border)]" />
+      <button
+        onClick={() => useUiStore.getState().toggleSidebar()}
+        title={sidebarHidden ? 'Show sidebar  [' : 'Hide sidebar  ['}
+        aria-pressed={sidebarHidden}
+        className={toolbarBtn}
+      >
+        <PanelLeft size={12} /> Sidebar
+      </button>
+      <button onClick={() => useUiStore.getState().setCanvasOnly(true)} title="Full-screen canvas  F  (Esc to leave)" className={toolbarBtn}>
+        <Expand size={12} /> Full screen
+      </button>
       <button onClick={onFitView} title="Fit the whole board" className={toolbarBtn}>
         <Maximize2 size={12} /> Fit
       </button>
       <button onClick={onSettings} title="Teams, sprints and card types" className={toolbarBtn}>
         <Settings size={12} /> Board settings
       </button>
-      <div className="h-4 w-px bg-[#30363d]" />
+      <div className="h-4 w-px bg-[var(--c-border)]" />
       <button onClick={onSearch} title="Search  /  or  Ctrl+K" className={toolbarBtn}>
         <Search size={12} /> Search
       </button>
@@ -122,10 +139,12 @@ function Toolbar({ onSearch, onFitView, onInfo, onFiles, onSettings, onExport }:
         <Archive size={12} /> Files
       </button>
       <div className="flex-1" />
+      <AppearanceControls />
+      <div className="h-4 w-px bg-[var(--c-border)] mx-1" />
       <SaveIndicator />
-      <div className="h-4 w-px bg-[#30363d] ml-2" />
+      <div className="h-4 w-px bg-[var(--c-border)] ml-2" />
       <button onClick={onInfo} title="About PI Board"
-        className="p-1 text-[#8b949e] hover:text-amber-400 transition-colors rounded hover:bg-[#1c2333]" aria-label="About PI Board">
+        className="p-1 text-[color:var(--c-text-muted)] hover:text-amber-400 transition-colors rounded hover:bg-[var(--c-raised)]" aria-label="About PI Board">
         <HelpCircle size={14} />
       </button>
     </div>
@@ -171,6 +190,8 @@ function AppInner() {
   const [editorCardId, setEditorCardId] = useState<string | null>(null);
   const [ctxMenu, setCtxMenu] = useState<CtxMenuState | null>(null);
   const [linkFromId, setLinkFromId] = useState<string | null>(null);
+  const sidebarHidden = useUiStore((s) => s.sidebarHidden);
+  const canvasOnly = useUiStore((s) => s.canvasOnly);
 
   useAutoSave();
 
@@ -188,10 +209,15 @@ function AppInner() {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setShowSearch(false); setCtxMenu(null); setShowInfo(false); setShowFiles(false); setLinkFromId(null);
+        useUiStore.getState().setCanvasOnly(false);
         return;
       }
       const el = e.target as HTMLElement;
       const typing = el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable;
+      if (!typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        if (e.key === '[') { useUiStore.getState().toggleSidebar(); return; }
+        if (e.key === 'f' || e.key === 'F') { useUiStore.getState().setCanvasOnly(!useUiStore.getState().canvasOnly); return; }
+      }
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
         setShowSearch((v) => !v);
@@ -471,6 +497,7 @@ function AppInner() {
   if (!isOpen) {
     return (
       <>
+        <div className="fixed top-3 right-4 z-[60]"><AppearanceControls /></div>
         <OpenOrCreateDialog
           onOpen={() => void handleOpen()}
           onCreate={(opts) => void handleCreate(opts)}
@@ -478,10 +505,10 @@ function AppInner() {
           lastFilename={lastFilename}
         />
         {loadError && (
-          <div role="alert" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] max-w-[520px] flex items-start gap-3 px-4 py-3 rounded-lg border border-red-400/40 bg-[#161b22] shadow-2xl text-[12px] text-red-300">
+          <div role="alert" className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] max-w-[520px] flex items-start gap-3 px-4 py-3 rounded-lg border border-red-400/40 bg-[var(--c-surface)] shadow-2xl text-[0.75rem] text-red-300">
             <AlertCircle size={14} className="shrink-0 mt-0.5" />
             <span className="flex-1">{loadError}</span>
-            <button onClick={() => setLoadError('')} className="text-[#8b949e] hover:text-[#e6edf3]" aria-label="Dismiss"><X size={13} /></button>
+            <button onClick={() => setLoadError('')} className="text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)]" aria-label="Dismiss"><X size={13} /></button>
           </div>
         )}
       </>
@@ -489,18 +516,18 @@ function AppInner() {
   }
 
   return (
-    <div className="h-screen bg-[#0d1117] flex flex-col overflow-hidden">
-      <Toolbar
+    <div className="h-screen bg-[var(--c-canvas)] flex flex-col overflow-hidden">
+      {!canvasOnly && <Toolbar
         onSearch={() => setShowSearch((v) => !v)}
         onFitView={triggerFitView}
         onInfo={() => setShowInfo(true)}
         onFiles={() => setShowFiles(true)}
         onSettings={() => setShowSettings(true)}
         onExport={() => setShowExport(true)}
-      />
+      />}
 
       <div className="flex flex-1 overflow-hidden">
-        <SidebarPanel />
+        {!canvasOnly && !sidebarHidden && <SidebarPanel />}
 
         <div className="flex-1 relative overflow-hidden">
           <BoardCanvas
@@ -514,22 +541,36 @@ function AppInner() {
           {cardCount === 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center">
-                <div className="text-[#484f58] text-sm">Double-click a cell to add a card</div>
-                <div className="text-[#3a3f47] text-xs mt-1">Drag from a card's right dot to the card that needs it</div>
+                <div className="text-[color:var(--c-text-faint)] text-sm">Double-click a cell to add a card</div>
+                <div className="text-[color:var(--c-text-dim)] text-xs mt-1">Drag from a card's right dot to the card that needs it</div>
               </div>
             </div>
           )}
 
+          {canvasOnly && (
+            <div className="absolute top-2 right-3 z-20 flex items-center gap-2 px-2 py-1 rounded-lg border border-[color:var(--c-border)] bg-[var(--c-surface)]/90 shadow-lg">
+              <AppearanceControls />
+              <div className="h-4 w-px bg-[var(--c-border)]" />
+              <button
+                onClick={() => useUiStore.getState().setCanvasOnly(false)}
+                title="Leave full screen  Esc"
+                className="flex items-center gap-1.5 px-2 py-1 text-[0.6875rem] text-[color:var(--c-text-muted)] hover:text-amber-400 rounded hover:bg-[var(--c-raised)]"
+              >
+                <Shrink size={12} /> Exit full screen
+              </button>
+            </div>
+          )}
+
           {linkFromId && (
-            <div className="absolute top-[64px] left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 px-3 py-1.5 rounded-lg border border-amber-400/40 bg-[#161b22] shadow-xl text-[12px] text-[#e6edf3]">
+            <div className="absolute top-[64px] left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 px-3 py-1.5 rounded-lg border border-amber-400/40 bg-[var(--c-surface)] shadow-xl text-[0.75rem] text-[color:var(--c-text)]">
               <Link2 size={13} className="text-amber-400" />
               Click the card that needs this one
-              <button onClick={() => setLinkFromId(null)} className="text-[#8b949e] hover:text-[#e6edf3]">Cancel</button>
+              <button onClick={() => setLinkFromId(null)} className="text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)]">Cancel</button>
             </div>
           )}
         </div>
 
-        {focusCardId && focusedCardExists && (
+        {!canvasOnly && focusCardId && focusedCardExists && (
           <CardPanel
             cardId={focusCardId}
             onClose={() => useViewStore.getState().setFocusCard(null)}

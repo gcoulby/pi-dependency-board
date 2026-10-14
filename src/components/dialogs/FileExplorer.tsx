@@ -49,20 +49,20 @@ interface CoreEntry {
 
 function SectionHeader({ label, count }: { label: string; count: number }) {
   return (
-    <div className="flex items-center gap-2 px-4 py-2 border-b border-[#21262d] sticky top-0 bg-[#161b22] z-10">
-      <span className="text-[10px] uppercase tracking-wider text-[#8b949e] font-mono">{label}</span>
-      <span className="text-[9px] text-[#484f58] font-mono">({count})</span>
+    <div className="flex items-center gap-2 px-4 py-2 border-b border-[color:var(--c-subtle)] sticky top-0 bg-[var(--c-surface)] z-10">
+      <span className="text-[0.625rem] uppercase tracking-wider text-[color:var(--c-text-muted)] font-mono">{label}</span>
+      <span className="text-[0.5625rem] text-[color:var(--c-text-faint)] font-mono">({count})</span>
     </div>
   );
 }
 
 function CoreFileRow({ entry }: { entry: CoreEntry }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5 border-b border-[#21262d]/50">
-      <FileJson size={13} className="text-[#484f58] shrink-0" />
-      <span className="text-[12px] text-[#8b949e] font-mono flex-1">{entry.name}</span>
-      <span className="text-[10px] text-[#3a3f47] font-mono">{fmtBytes(entry.size)}</span>
-      <span title="Read-only"><Lock size={10} className="text-[#3a3f47]" /></span>
+    <div className="flex items-center gap-3 px-4 py-2.5 border-b border-[color:var(--c-subtle)]/50">
+      <FileJson size={13} className="text-[color:var(--c-text-faint)] shrink-0" />
+      <span className="text-[0.75rem] text-[color:var(--c-text-muted)] font-mono flex-1">{entry.name}</span>
+      <span className="text-[0.625rem] text-[color:var(--c-text-dim)] font-mono">{fmtBytes(entry.size)}</span>
+      <span title="Read-only"><Lock size={10} className="text-[color:var(--c-text-dim)]" /></span>
     </div>
   );
 }
@@ -77,25 +77,25 @@ function AssetRow({
   const url = getCachedAsset(entry.id);
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5 border-b border-[#21262d]/50 group">
+    <div className="flex items-center gap-3 px-4 py-2.5 border-b border-[color:var(--c-subtle)]/50 group">
       {/* Preview */}
-      <div className="w-8 h-8 rounded bg-[#21262d] shrink-0 overflow-hidden flex items-center justify-center">
+      <div className="w-8 h-8 rounded bg-[var(--c-subtle)] shrink-0 overflow-hidden flex items-center justify-center">
         {entry.isImage && url ? (
           <img src={url} alt="" className="w-full h-full object-cover" />
         ) : (
-          <ImageIcon size={12} className="text-[#484f58]" />
+          <ImageIcon size={12} className="text-[color:var(--c-text-faint)]" />
         )}
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <div className="text-[11px] text-[#e6edf3] font-mono truncate">{entry.filename}</div>
+        <div className="text-[0.6875rem] text-[color:var(--c-text)] font-mono truncate">{entry.filename}</div>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-[9px] text-[#484f58] font-mono">{fmtBytes(entry.size)}</span>
-          <span className="text-[9px] text-[#3a3f47] font-mono">{entry.mimeType.split('/')[1]}</span>
+          <span className="text-[0.5625rem] text-[color:var(--c-text-faint)] font-mono">{fmtBytes(entry.size)}</span>
+          <span className="text-[0.5625rem] text-[color:var(--c-text-dim)] font-mono">{entry.mimeType.split('/')[1]}</span>
         </div>
         {entry.referencedBy.length > 0 && (
-          <div className="text-[9px] text-[#484f58] truncate mt-0.5">
+          <div className="text-[0.5625rem] text-[color:var(--c-text-faint)] truncate mt-0.5">
             ↳ {entry.referencedBy.join(', ')}
           </div>
         )}
@@ -104,7 +104,7 @@ function AssetRow({
       {/* Actions */}
       <button
         onClick={() => onDelete(entry.id)}
-        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-[#484f58] hover:text-red-400"
+        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-[color:var(--c-text-faint)] hover:text-red-400"
         title="Remove asset"
       >
         <Trash2 size={11} />
@@ -121,15 +121,15 @@ function ContentRow({
   onOpen: (cardId: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5 border-b border-[#21262d]/50 group">
+    <div className="flex items-center gap-3 px-4 py-2.5 border-b border-[color:var(--c-subtle)]/50 group">
       <BookOpen size={13} className="text-amber-400/60 shrink-0" />
       <div className="flex-1 min-w-0">
-        <div className="text-[12px] text-[#e6edf3] truncate">{entry.cardTitle}</div>
-        <div className="text-[9px] text-[#484f58] font-mono mt-0.5">{fmtBytes(entry.size)}</div>
+        <div className="text-[0.75rem] text-[color:var(--c-text)] truncate">{entry.cardTitle}</div>
+        <div className="text-[0.5625rem] text-[color:var(--c-text-faint)] font-mono mt-0.5">{fmtBytes(entry.size)}</div>
       </div>
       <button
         onClick={() => onOpen(entry.cardId)}
-        className="opacity-0 group-hover:opacity-100 transition flex items-center gap-1 px-2 py-0.5 rounded text-[10px] text-amber-400 hover:bg-amber-400/10"
+        className="opacity-0 group-hover:opacity-100 transition flex items-center gap-1 px-2 py-0.5 rounded text-[0.625rem] text-amber-400 hover:bg-amber-400/10"
       >
         Open
       </button>
@@ -257,23 +257,23 @@ export function FileExplorer({ onClose, onOpenEditor }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="w-140 max-h-[80vh] bg-[#161b22] rounded border border-[#30363d] flex flex-col overflow-hidden shadow-2xl">
+      <div className="w-140 max-h-[80vh] bg-[var(--c-surface)] rounded border border-[color:var(--c-border)] flex flex-col overflow-hidden shadow-2xl">
 
         {/* Header */}
-        <div className="h-10 bg-[#0d1117] border-b border-[#30363d] flex items-center px-4 gap-3 shrink-0">
+        <div className="h-10 bg-[var(--c-canvas)] border-b border-[color:var(--c-border)] flex items-center px-4 gap-3 shrink-0">
           <Archive size={13} className="text-amber-400" />
-          <span className="text-sm font-medium text-[#e6edf3]">Archive Browser</span>
-          <span className="text-[10px] text-[#484f58] font-mono">.piboard</span>
+          <span className="text-sm font-medium text-[color:var(--c-text)]">Archive Browser</span>
+          <span className="text-[0.625rem] text-[color:var(--c-text-faint)] font-mono">.piboard</span>
           <div className="flex-1" />
           {!loading && (
-            <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#484f58]">
+            <div className="flex items-center gap-1.5 text-[0.625rem] font-mono text-[color:var(--c-text-faint)]">
               <HardDrive size={10} />
               {fmtBytes(totalSize)} total
             </div>
           )}
           <button
             onClick={onClose}
-            className="ml-2 text-[#8b949e] hover:text-[#e6edf3] transition-colors"
+            className="ml-2 text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)] transition-colors"
           >
             <X size={15} />
           </button>
@@ -281,7 +281,7 @@ export function FileExplorer({ onClose, onOpenEditor }: Props) {
 
         {/* Body */}
         {loading ? (
-          <div className="flex-1 flex items-center justify-center gap-2 text-[#484f58]">
+          <div className="flex-1 flex items-center justify-center gap-2 text-[color:var(--c-text-faint)]">
             <Loader2 size={16} className="animate-spin" />
             <span className="text-sm">Reading archive…</span>
           </div>
@@ -295,7 +295,7 @@ export function FileExplorer({ onClose, onOpenEditor }: Props) {
             {/* Assets */}
             <SectionHeader label="Assets" count={assetEntries.length} />
             {assetEntries.length === 0 ? (
-              <div className="px-4 py-3 text-[11px] text-[#3a3f47]">No assets attached yet</div>
+              <div className="px-4 py-3 text-[0.6875rem] text-[color:var(--c-text-dim)]">No assets attached yet</div>
             ) : (
               assetEntries.map((e) => (
                 <AssetRow key={e.id} entry={e} onDelete={handleDeleteAsset} />
@@ -305,7 +305,7 @@ export function FileExplorer({ onClose, onOpenEditor }: Props) {
             {/* Content documents */}
             <SectionHeader label="Card Detail" count={contentEntries.length} />
             {contentEntries.length === 0 ? (
-              <div className="px-4 py-3 text-[11px] text-[#3a3f47]">No card detail written yet</div>
+              <div className="px-4 py-3 text-[0.6875rem] text-[color:var(--c-text-dim)]">No card detail written yet</div>
             ) : (
               contentEntries.map((e) => (
                 <ContentRow key={e.cardId} entry={e} onOpen={handleOpenContent} />

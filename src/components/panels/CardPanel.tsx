@@ -18,11 +18,11 @@ interface Props {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[10px] uppercase tracking-wider text-[#8b949e] mb-1.5 font-mono">{children}</div>
+    <div className="text-[0.625rem] uppercase tracking-wider text-[color:var(--c-text-muted)] mb-1.5 font-mono">{children}</div>
   );
 }
 
-const input = 'w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-1.5 text-[#e6edf3] text-sm placeholder-[#3a3f47] focus:outline-none focus:border-amber-400/60';
+const input = 'w-full bg-[var(--c-canvas)] border border-[color:var(--c-border)] rounded px-3 py-1.5 text-[color:var(--c-text)] text-sm placeholder-[var(--c-text-dim)] focus:outline-none focus:border-amber-400/60';
 
 export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
   const card = useCardStore((s) => s.cards.find((c) => c.id === cardId));
@@ -86,12 +86,12 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
   };
 
   return (
-    <div className="w-80 h-full bg-[#161b22] border-l border-[#30363d] flex flex-col overflow-hidden shrink-0">
+    <div className="w-80 h-full bg-[var(--c-surface)] border-l border-[color:var(--c-border)] flex flex-col overflow-hidden shrink-0">
 
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#30363d] shrink-0">
-        <span className="text-[10px] uppercase tracking-wider text-[#8b949e] font-mono">Card</span>
-        <button onClick={onClose} className="text-[#8b949e] hover:text-[#e6edf3]" aria-label="Close panel"><X size={14} /></button>
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-[color:var(--c-border)] shrink-0">
+        <span className="text-[0.625rem] uppercase tracking-wider text-[color:var(--c-text-muted)] font-mono">Card</span>
+        <button onClick={onClose} className="text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)]" aria-label="Close panel"><X size={14} /></button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -120,8 +120,8 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
                   <button
                     key={t.id}
                     onClick={() => updateCard(cardId, { typeId: t.id })}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[10px] transition-colors"
-                    style={on ? { color: st.text, background: st.bg, borderColor: st.border } : { color: '#8b949e', borderColor: '#30363d' }}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded border text-[0.625rem] transition-colors"
+                    style={on ? { color: st.text, background: st.bg, borderColor: st.border } : { color: 'var(--c-text-muted)', borderColor: 'var(--c-border)' }}
                   >
                     <Icon size={10} />
                     {t.name}
@@ -166,8 +166,8 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
                   onClick={() => moveCard(cardId, card.laneId, card.sprintId, Number.MAX_SAFE_INTEGER, k)}
                   aria-pressed={(card.slot ?? 'start') === k}
                   className={[
-                    'flex-1 py-1 rounded border text-[11px] capitalize transition-colors',
-                    (card.slot ?? 'start') === k ? 'border-amber-400/60 text-amber-400 bg-amber-400/10' : 'border-[#30363d] text-[#8b949e] hover:border-[#484f58]',
+                    'flex-1 py-1 rounded border text-[0.6875rem] capitalize transition-colors',
+                    (card.slot ?? 'start') === k ? 'border-amber-400/60 text-amber-400 bg-amber-400/10' : 'border-[color:var(--c-border)] text-[color:var(--c-text-muted)] hover:border-[color:var(--c-text-faint)]',
                   ].join(' ')}
                 >
                   {k}
@@ -215,7 +215,7 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
               rows={4}
               onChange={(e) => updateCard(cardId, { description: e.target.value || undefined })}
               placeholder="What is being delivered, and what does done look like?"
-              className={`${input} text-[12px] leading-relaxed resize-y`}
+              className={`${input} text-[0.75rem] leading-relaxed resize-y`}
             />
           </div>
 
@@ -223,12 +223,12 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
           <div>
             <SectionLabel>Dependencies</SectionLabel>
             {waitsOn.length === 0 && neededBy.length === 0 && (
-              <div className="text-[11px] text-[#3a3f47]">None. Drag from the right dot of a card to link.</div>
+              <div className="text-[0.6875rem] text-[color:var(--c-text-dim)]">None. Drag from the right dot of a card to link.</div>
             )}
             {[{ heading: 'Waits on', list: waitsOn, other: 'from' as const }, { heading: 'Needed by', list: neededBy, other: 'to' as const }].map(
               (g) => g.list.length > 0 && (
                 <div key={g.heading} className="mb-2">
-                  <div className="text-[9px] uppercase tracking-wider text-[#484f58] font-mono mb-1">{g.heading}</div>
+                  <div className="text-[0.5625rem] uppercase tracking-wider text-[color:var(--c-text-faint)] font-mono mb-1">{g.heading}</div>
                   <div className="space-y-1">
                     {g.list.map((d) => {
                       const check = checkSchedule(d, cards, sprints);
@@ -236,16 +236,16 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
                         <button
                           key={d.id}
                           onClick={() => useViewStore.getState().openDependency(d.id)}
-                          className="w-full flex items-center gap-2 px-2 py-1.5 rounded bg-[#0d1117] border border-[#30363d] hover:border-[#484f58] text-left"
+                          className="w-full flex items-center gap-2 px-2 py-1.5 rounded bg-[var(--c-canvas)] border border-[color:var(--c-border)] hover:border-[color:var(--c-text-faint)] text-left"
                         >
-                          <ArrowRight size={10} className="text-[#484f58] shrink-0" />
+                          <ArrowRight size={10} className="text-[color:var(--c-text-faint)] shrink-0" />
                           <span className="flex-1 min-w-0">
-                            <span className="block text-[11px] text-[#e6edf3] truncate">{titleOf(d[g.other])}</span>
-                            {d.label && <span className="block text-[10px] text-[#8b949e] truncate">{d.label}</span>}
+                            <span className="block text-[0.6875rem] text-[color:var(--c-text)] truncate">{titleOf(d[g.other])}</span>
+                            {d.label && <span className="block text-[0.625rem] text-[color:var(--c-text-muted)] truncate">{d.label}</span>}
                           </span>
-                          {check === 'conflict' && <span className="text-[9px] font-mono text-[#f85149] shrink-0">conflict</span>}
-                          {check === 'same-sprint' && <span className="text-[9px] font-mono text-[#f0883e] shrink-0">same sprint</span>}
-                          <span className="text-[9px] font-mono text-[#484f58] shrink-0">{d.state}</span>
+                          {check === 'conflict' && <span className="text-[0.5625rem] font-mono text-[#f85149] shrink-0">conflict</span>}
+                          {check === 'same-sprint' && <span className="text-[0.5625rem] font-mono text-[#f0883e] shrink-0">same sprint</span>}
+                          <span className="text-[0.5625rem] font-mono text-[color:var(--c-text-faint)] shrink-0">{d.state}</span>
                         </button>
                       );
                     })}
@@ -260,14 +260,14 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
             <SectionLabel>Detail</SectionLabel>
             <button
               onClick={() => onOpenEditor(cardId)}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded border border-[#30363d] hover:border-amber-400/40 hover:bg-amber-400/5 transition-colors group text-left"
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded border border-[color:var(--c-border)] hover:border-amber-400/40 hover:bg-amber-400/5 transition-colors group text-left"
             >
-              <BookOpen size={14} className={card.hasContent ? 'text-amber-400' : 'text-[#484f58] group-hover:text-amber-400'} />
+              <BookOpen size={14} className={card.hasContent ? 'text-amber-400' : 'text-[color:var(--c-text-faint)] group-hover:text-amber-400'} />
               <div>
-                <div className={`text-[12px] font-medium ${card.hasContent ? 'text-amber-400' : 'text-[#8b949e] group-hover:text-[#e6edf3]'}`}>
+                <div className={`text-[0.75rem] font-medium ${card.hasContent ? 'text-amber-400' : 'text-[color:var(--c-text-muted)] group-hover:text-[color:var(--c-text)]'}`}>
                   {card.hasContent ? 'Open detail' : 'Add detail'}
                 </div>
-                <div className="text-[10px] text-[#484f58]">
+                <div className="text-[0.625rem] text-[color:var(--c-text-faint)]">
                   {card.hasContent ? 'Block-based rich text editor' : 'Headings, lists, tables, images…'}
                 </div>
               </div>
@@ -279,7 +279,7 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
             <SectionLabel>Tags</SectionLabel>
             <div className="flex flex-wrap gap-1 mb-2">
               {card.tags.map((tag) => (
-                <span key={tag} className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-[#21262d] text-[#8b949e] border border-[#30363d]">
+                <span key={tag} className="flex items-center gap-1 text-[0.625rem] px-2 py-0.5 rounded bg-[var(--c-subtle)] text-[color:var(--c-text-muted)] border border-[color:var(--c-border)]">
                   {tag}
                   <button onClick={() => updateCard(cardId, { tags: card.tags.filter((t) => t !== tag) })}
                     className="hover:text-red-400 transition-colors" aria-label={`Remove tag ${tag}`}><X size={9} /></button>
@@ -294,7 +294,7 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
                   setNewTag('');
                 }
               }}
-              className="w-full bg-[#0d1117] border border-[#30363d] rounded px-2 py-1 text-[#e6edf3] text-xs placeholder-[#3a3f47] focus:outline-none focus:border-amber-400/60"
+              className="w-full bg-[var(--c-canvas)] border border-[color:var(--c-border)] rounded px-2 py-1 text-[color:var(--c-text)] text-xs placeholder-[var(--c-text-dim)] focus:outline-none focus:border-amber-400/60"
             />
             <datalist id="tag-suggestions">
               {allTags.filter((t) => !card.tags.includes(t)).map((t) => <option key={t} value={t} />)}
@@ -312,14 +312,14 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
                       const props = { ...card.properties }; delete props[k]; props[e.target.value] = v;
                       updateCard(cardId, { properties: props });
                     }}
-                    className="w-24 bg-[#0d1117] border border-[#30363d] rounded px-2 py-1 text-[10px] text-[#8b949e] focus:outline-none focus:border-amber-400/60 font-mono"
+                    className="w-24 bg-[var(--c-canvas)] border border-[color:var(--c-border)] rounded px-2 py-1 text-[0.625rem] text-[color:var(--c-text-muted)] focus:outline-none focus:border-amber-400/60 font-mono"
                   />
                   <input type="text" value={v}
                     onChange={(e) => updateCard(cardId, { properties: { ...card.properties, [k]: e.target.value } })}
-                    className="flex-1 bg-[#0d1117] border border-[#30363d] rounded px-2 py-1 text-[11px] text-[#e6edf3] focus:outline-none focus:border-amber-400/60"
+                    className="flex-1 bg-[var(--c-canvas)] border border-[color:var(--c-border)] rounded px-2 py-1 text-[0.6875rem] text-[color:var(--c-text)] focus:outline-none focus:border-amber-400/60"
                   />
                   <button onClick={() => { const p = { ...card.properties }; delete p[k]; updateCard(cardId, { properties: p }); }}
-                    className="text-[#484f58] hover:text-red-400 transition-colors" aria-label="Remove property">
+                    className="text-[color:var(--c-text-faint)] hover:text-red-400 transition-colors" aria-label="Remove property">
                     <Trash2 size={11} />
                   </button>
                 </div>
@@ -328,12 +328,12 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
             <div className="flex gap-1.5 mt-2">
               <input type="text" value={newPropKey} placeholder="key"
                 onChange={(e) => setNewPropKey(e.target.value)}
-                className="w-24 bg-[#0d1117] border border-[#30363d] rounded px-2 py-1 text-[10px] text-[#8b949e] placeholder-[#3a3f47] focus:outline-none focus:border-amber-400/60 font-mono"
+                className="w-24 bg-[var(--c-canvas)] border border-[color:var(--c-border)] rounded px-2 py-1 text-[0.625rem] text-[color:var(--c-text-muted)] placeholder-[var(--c-text-dim)] focus:outline-none focus:border-amber-400/60 font-mono"
               />
               <input type="text" value={newPropVal} placeholder="value"
                 onChange={(e) => setNewPropVal(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') addProp(); }}
-                className="flex-1 bg-[#0d1117] border border-[#30363d] rounded px-2 py-1 text-[11px] text-[#e6edf3] placeholder-[#3a3f47] focus:outline-none focus:border-amber-400/60"
+                className="flex-1 bg-[var(--c-canvas)] border border-[color:var(--c-border)] rounded px-2 py-1 text-[0.6875rem] text-[color:var(--c-text)] placeholder-[var(--c-text-dim)] focus:outline-none focus:border-amber-400/60"
               />
               <button onClick={addProp} className="text-amber-400 hover:text-amber-300" aria-label="Add property"><Plus size={14} /></button>
             </div>
@@ -343,19 +343,19 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
           <div>
             <SectionLabel>Attachments</SectionLabel>
             {(card.attachments ?? []).length === 0 ? (
-              <div className="text-[11px] text-[#3a3f47] mb-2">No files attached</div>
+              <div className="text-[0.6875rem] text-[color:var(--c-text-dim)] mb-2">No files attached</div>
             ) : (
               <div className="space-y-1 mb-2">
                 {(card.attachments ?? []).map((att) => (
-                  <div key={att.id} className="flex items-center gap-2 px-2 py-1.5 rounded bg-[#0d1117] border border-[#30363d] group">
-                    <FileText size={10} className="text-[#484f58] shrink-0" />
+                  <div key={att.id} className="flex items-center gap-2 px-2 py-1.5 rounded bg-[var(--c-canvas)] border border-[color:var(--c-border)] group">
+                    <FileText size={10} className="text-[color:var(--c-text-faint)] shrink-0" />
                     <button onClick={() => downloadAttachment(att)}
-                      className="flex-1 text-left text-[11px] text-[#8b949e] hover:text-[#e6edf3] truncate transition-colors">
+                      className="flex-1 text-left text-[0.6875rem] text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)] truncate transition-colors">
                       {att.filename}
                     </button>
-                    <span className="text-[10px] text-[#3a3f47] font-mono shrink-0">{formatSize(att.size)}</span>
+                    <span className="text-[0.625rem] text-[color:var(--c-text-dim)] font-mono shrink-0">{formatSize(att.size)}</span>
                     <button onClick={() => removeAttachment(att.id)}
-                      className="text-[#484f58] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100" aria-label="Remove attachment">
+                      className="text-[color:var(--c-text-faint)] hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100" aria-label="Remove attachment">
                       <X size={10} />
                     </button>
                   </div>
@@ -363,7 +363,7 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
               </div>
             )}
             <button onClick={() => attachInputRef.current?.click()}
-              className="flex items-center gap-2 text-[11px] text-[#484f58] hover:text-amber-400 transition-colors">
+              className="flex items-center gap-2 text-[0.6875rem] text-[color:var(--c-text-faint)] hover:text-amber-400 transition-colors">
               <Paperclip size={11} />Attach file
             </button>
             <input ref={attachInputRef} type="file" className="hidden" multiple
@@ -371,7 +371,7 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
           </div>
 
           {/* Timestamps */}
-          <div className="text-[10px] text-[#3a3f47] font-mono space-y-0.5 pb-2">
+          <div className="text-[0.625rem] text-[color:var(--c-text-dim)] font-mono space-y-0.5 pb-2">
             <div>created {new Date(card.createdAt).toLocaleString()}</div>
             <div>updated {new Date(card.updatedAt).toLocaleString()}</div>
           </div>
@@ -379,7 +379,7 @@ export function CardPanel({ cardId, onClose, onOpenEditor }: Props) {
       </div>
 
       {/* Delete */}
-      <div className="p-3 border-t border-[#30363d] shrink-0">
+      <div className="p-3 border-t border-[color:var(--c-border)] shrink-0">
         <button onClick={() => { deleteCard(cardId); onClose(); }}
           className="w-full py-1.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded transition-colors">
           Delete card

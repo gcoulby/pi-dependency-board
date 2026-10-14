@@ -17,7 +17,7 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import type { Card as CardModel, CardId, CardType } from '../../types'
-import { CARD_H, CARD_W } from '../../board/constants'
+import { CARD_H, CARD_W, labelColWidth } from '../../board/constants'
 import { cardsInCell, cellAt, computeLayout, insertIndexAt, type Cell } from '../../board/layout'
 import { slotOf } from '../../board/slots'
 import { pickSides } from '../../board/edgeRoute'
@@ -25,6 +25,8 @@ import { checkSchedule, downstream, upstream } from '../../board/dependencies'
 import { useBoardStore } from '../../store/boardStore'
 import { useCardStore } from '../../store/cardStore'
 import { useViewStore } from '../../store/viewStore'
+import { useUiStore } from '../../store/uiStore'
+import { cardHeights } from '../../lib/cardMeasure'
 import { Card, type CardNodeData } from './Card'
 import { DependencyEdge, type DependencyEdgeData } from './DependencyEdge'
 import { edgeAppearance } from '../../lib/edgeStyle'
@@ -52,6 +54,7 @@ interface CachedNode {
   inCount: number
   outCount: number
   ownerName?: string
+  h: number
   node: Node
 }
 
@@ -61,6 +64,8 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
   const sprints = useBoardStore((s) => s.sprints)
   const cardTypes = useBoardStore((s) => s.cardTypes)
   const externalLane = useBoardStore((s) => s.externalLane)
+  const theme = useUiStore((s) => s.theme)
+  const fontScale = useUiStore((s) => s.fontScale)
   const cards = useCardStore((s) => s.cards)
   const dependencies = useCardStore((s) => s.dependencies)
 
@@ -82,9 +87,9 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
 
   // Positions are derived: recomputed only when cards, teams or sprints change
   const layout = useMemo(
-    () => computeLayout({ pi, teams, sprints, cardTypes, externalLane }, cards),
+    () => computeLayout({ pi, teams, sprints, cardTypes, externalLane }, cards, cardHeights(cards, fontScale), labelColWidth(fontScale)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [teams, sprints, cards],
+    [teams, sprints, cards, fontScale],
   )
 
   const teamNames = useMemo(() => new Map(teams.map((t) => [t.id, t.name])), [teams])
@@ -134,7 +139,7 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
       const prev = nodeCache.current.get(card.id)
       if (
         prev && prev.card === card && prev.type === type && prev.x === pos.x && prev.y === pos.y &&
-        prev.dimmed === dimmed && prev.selected === selected && prev.inCount === inCount && prev.outCount === outCount && prev.ownerName === ownerName
+        prev.dimmed === dimmed && prev.selected === selected && prev.inCount === inCount && prev.outCount === outCount && prev.ownerName === ownerName && prev.h === (layout.cardH[card.id] ?? CARD_H)
       ) {
         next.set(card.id, prev)
         return prev.node
@@ -145,13 +150,13 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
         type: 'card',
         position: pos,
         // Sized through style so React Flow measures the DOM and keeps handle bounds up to date
-        style: { width: CARD_W, height: CARD_H },
+        style: { width: CARD_W, height: layout.cardH[card.id] ?? CARD_H },
         initialWidth: CARD_W,
-        initialHeight: CARD_H,
+        initialHeight: layout.cardH[card.id] ?? CARD_H,
         selected,
         data,
       }
-      next.set(card.id, { card, type, x: pos.x, y: pos.y, dimmed, selected, inCount, outCount, ownerName, node })
+      next.set(card.id, { card, type, x: pos.x, y: pos.y, dimmed, selected, inCount, outCount, ownerName, h: layout.cardH[card.id] ?? CARD_H, node })
       return node
     })
     nodeCache.current = next
@@ -167,7 +172,7 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
       return derivedNodes.map((n) => {
         const p = prevById.get(n.id)
         if (p && p.data === n.data && p.position.x === n.position.x && p.position.y === n.position.y && p.selected === n.selected) return p
-        return { ...n, measured: p?.measured }
+        return { ...n, measured: p && p.style?.height === n.style?.height ? p.measured : undefined }
       })
     })
   }, [derivedNodes])
@@ -194,7 +199,7 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
         const fp = layout.cardPos[d.from]
         const tp = layout.cardPos[d.to]
         const sides = fp && tp
-          ? pickSides({ x: fp.x, y: fp.y, h: CARD_H }, { x: tp.x, y: tp.y, h: CARD_H })
+          ? pickSides({ x: fp.x, y: fp.y, h: layout.cardH[d.from] ?? CARD_H }, { x: tp.x, y: tp.y, h: layout.cardH[d.to] ?? CARD_H })
           : { source: 'right' as const, target: 'left' as const }
         const data: DependencyEdgeData = {
           depId: d.id, label: d.label, state: d.state, check, dimmed,
@@ -221,7 +226,7 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
     let target: { x: number; y: number } | null = null
     if (panTarget.kind === 'card') {
       const p = layout.cardPos[panTarget.id]
-      if (p) target = { x: p.x + CARD_W / 2, y: p.y + CARD_H / 2 }
+      if (p) target = { x: p.x + CARD_W / 2, y: p.y + (layout.cardH[panTarget.id] ?? CARD_H) / 2 }
     } else {
       const d = useCardStore.getState().dependencies.find((dep) => dep.id === panTarget.id)
       const a = d && layout.cardPos[d.from]
@@ -259,7 +264,7 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
   // ── Interaction ────────────────────────────────────────────────────────────
 
   const centreOf = useCallback(
-    (n: Node) => ({ x: n.position.x + CARD_W / 2, y: n.position.y + CARD_H / 2 }),
+    (n: Node) => ({ x: n.position.x + CARD_W / 2, y: n.position.y + (typeof n.style?.height === 'number' ? n.style.height : CARD_H) / 2 }),
     [],
   )
 
@@ -402,7 +407,7 @@ function BoardCanvasInner({ onCardContextMenu, onCanvasContextMenu, onCreateCard
       nodesConnectable
       fitView={false}
       proOptions={{ hideAttribution: true }}
-      colorMode="dark"
+      colorMode={theme}
       className={linkFromId ? 'cursor-crosshair' : undefined}
     >
       <MatrixBackground layout={layout} hoverCell={hoverCell} dimLane={dimLane} />

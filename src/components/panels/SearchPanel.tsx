@@ -22,9 +22,9 @@ export function SearchPanel({ onSelectCard, onClose }: Props) {
 
   return (
     <div className="fixed top-16 left-1/2 -translate-x-1/2 w-[520px] z-40">
-      <div className="bg-[#161b22] border border-[#30363d] rounded-lg shadow-2xl overflow-hidden">
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-[#30363d]">
-          <Search size={15} className="text-[#8b949e]" />
+      <div className="bg-[var(--c-surface)] border border-[color:var(--c-border)] rounded-lg shadow-2xl overflow-hidden">
+        <div className="flex items-center gap-3 px-4 py-3 border-b border-[color:var(--c-border)]">
+          <Search size={15} className="text-[color:var(--c-text-muted)]" />
           <input
             ref={inputRef}
             type="text"
@@ -32,14 +32,14 @@ export function SearchPanel({ onSelectCard, onClose }: Props) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Escape' && onClose()}
             placeholder="Search cards by title, owner, tag, party…"
-            className="flex-1 bg-transparent text-[#e6edf3] text-sm focus:outline-none placeholder-[#484f58]"
+            className="flex-1 bg-transparent text-[color:var(--c-text)] text-sm focus:outline-none placeholder-[var(--c-text-faint)]"
           />
-          <button onClick={onClose} className="text-[#8b949e] hover:text-[#e6edf3]" aria-label="Close search">
+          <button onClick={onClose} className="text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)]" aria-label="Close search">
             <X size={15} />
           </button>
         </div>
 
-        <label className="flex items-center gap-2 px-4 py-2 border-b border-[#21262d] text-[11px] text-[#8b949e] select-none cursor-pointer">
+        <label className="flex items-center gap-2 px-4 py-2 border-b border-[color:var(--c-subtle)] text-[0.6875rem] text-[color:var(--c-text-muted)] select-none cursor-pointer">
           <input type="checkbox" checked={includeContent} onChange={(e) => setIncludeContent(e.target.checked)} className="accent-amber-400" />
           Also search long-form card documents
         </label>
@@ -56,23 +56,23 @@ export function SearchPanel({ onSelectCard, onClose }: Props) {
                 <button
                   key={card.id}
                   onClick={() => { onSelectCard(card.id); onClose(); }}
-                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-[#1c2333] transition-colors border-b border-[#21262d] last:border-0 text-left"
+                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-[var(--c-raised)] transition-colors border-b border-[color:var(--c-subtle)] last:border-0 text-left"
                 >
                   <span className="mt-0.5 shrink-0" style={{ color: st.text }}><Icon size={13} /></span>
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium text-[#e6edf3] truncate">{card.title}</div>
-                    <div className="text-[11px] font-mono text-[#8b949e] mt-0.5 truncate">
+                    <div className="text-sm font-medium text-[color:var(--c-text)] truncate">{card.title}</div>
+                    <div className="text-[0.6875rem] font-mono text-[color:var(--c-text-muted)] mt-0.5 truncate">
                       {lane} · {sprint}{card.owner ? ` · ${teams.find((t) => t.id === card.owner)?.name ?? ''}` : ''}{card.party ? ` · ${card.party}` : ''}
                     </div>
                     {card.tags.length > 0 && (
                       <div className="flex gap-1 mt-1">
                         {card.tags.map((t) => (
-                          <span key={t} className="text-[10px] px-1 rounded bg-[#21262d] text-[#8b949e]">{t}</span>
+                          <span key={t} className="text-[0.625rem] px-1 rounded bg-[var(--c-subtle)] text-[color:var(--c-text-muted)]">{t}</span>
                         ))}
                       </div>
                     )}
                   </div>
-                  {contentHits.has(card.id) && <span title="Matched in document" className="text-[#8b949e]"><BookOpen size={12} /></span>}
+                  {contentHits.has(card.id) && <span title="Matched in document" className="text-[color:var(--c-text-muted)]"><BookOpen size={12} /></span>}
                 </button>
               );
             })}
@@ -80,7 +80,7 @@ export function SearchPanel({ onSelectCard, onClose }: Props) {
         )}
 
         {query && results.length === 0 && (
-          <div className="px-4 py-6 text-center text-sm text-[#484f58]">No results</div>
+          <div className="px-4 py-6 text-center text-sm text-[color:var(--c-text-faint)]">No results</div>
         )}
       </div>
     </div>

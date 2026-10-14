@@ -53,12 +53,12 @@ export const DependencyEdge = memo(function DependencyEdge({
                 key={t.text}
                 onClick={() => useViewStore.getState().openDependency(d.depId)}
                 className={[
-                  'px-1.5 py-px rounded border text-[10px] bg-[#161b22] max-w-[140px] truncate',
+                  'px-1.5 py-px rounded border text-[0.625rem] bg-[var(--c-surface)] max-w-[140px] truncate',
                   t.tone === 'danger'
                     ? 'border-[#f85149]/60 text-[#f85149]'
                     : t.tone === 'warn'
                       ? 'border-[#f0883e]/60 text-[#f0883e]'
-                      : 'border-[#30363d] text-[#e6edf3]',
+                      : 'border-[color:var(--c-border)] text-[color:var(--c-text)]',
                 ].join(' ')}
               >
                 {t.text}

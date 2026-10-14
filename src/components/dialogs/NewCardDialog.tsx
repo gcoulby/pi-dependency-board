@@ -49,19 +49,19 @@ export function NewCardDialog({ cell, onConfirm, onCancel }: Props) {
     });
   };
 
-  const field = 'w-full bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-[#e6edf3] text-sm placeholder-[#484f58] focus:outline-none focus:border-amber-400/60';
-  const label = 'block text-[11px] uppercase tracking-wider text-[#8b949e] mb-1.5';
+  const field = 'w-full bg-[var(--c-canvas)] border border-[color:var(--c-border)] rounded px-3 py-2 text-[color:var(--c-text)] text-sm placeholder-[var(--c-text-faint)] focus:outline-none focus:border-amber-400/60';
+  const label = 'block text-[0.6875rem] uppercase tracking-wider text-[color:var(--c-text-muted)] mb-1.5';
 
   return (
-    <div className="fixed inset-0 bg-[#0d1117]/80 flex items-center justify-center z-50">
-      <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 w-[420px] shadow-xl">
+    <div className="fixed inset-0 bg-[var(--c-canvas)]/80 flex items-center justify-center z-50">
+      <div className="bg-[var(--c-surface)] border border-[color:var(--c-border)] rounded-lg p-6 w-[420px] shadow-xl">
         <div className="flex items-center justify-between mb-1">
-          <h3 className="text-[#e6edf3] font-semibold">Add card</h3>
-          <button onClick={onCancel} className="text-[#8b949e] hover:text-[#e6edf3]" aria-label="Close">
+          <h3 className="text-[color:var(--c-text)] font-semibold">Add card</h3>
+          <button onClick={onCancel} className="text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)]" aria-label="Close">
             <X size={16} />
           </button>
         </div>
-        <div className="text-[11px] font-mono text-[#8b949e] mb-5">{laneName} · {sprintName} · {SLOT_LABEL[cell.slot]}</div>
+        <div className="text-[0.6875rem] font-mono text-[color:var(--c-text-muted)] mb-5">{laneName} · {sprintName} · {SLOT_LABEL[cell.slot]}</div>
 
         <div className="space-y-4">
           <div>
@@ -91,10 +91,10 @@ export function NewCardDialog({ cell, onConfirm, onCancel }: Props) {
                   <button
                     key={t.id}
                     onClick={() => setTypeId(t.id)}
-                    className="inline-flex items-center gap-1 px-2 py-1 rounded border text-[11px] transition-colors"
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded border text-[0.6875rem] transition-colors"
                     style={on
                       ? { color: st.text, background: st.bg, borderColor: st.border }
-                      : { color: '#8b949e', borderColor: '#30363d' }}
+                      : { color: 'var(--c-text-muted)', borderColor: 'var(--c-border)' }}
                   >
                     <Icon size={11} />
                     {t.name}
@@ -127,13 +127,13 @@ export function NewCardDialog({ cell, onConfirm, onCancel }: Props) {
         </div>
 
         <div className="flex gap-3 justify-end mt-6">
-          <button onClick={onCancel} className="px-4 py-2 text-sm text-[#8b949e] hover:text-[#e6edf3] transition-colors">
+          <button onClick={onCancel} className="px-4 py-2 text-sm text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)] transition-colors">
             Cancel
           </button>
           <button
             onClick={submit}
             disabled={!title.trim()}
-            className="px-4 py-2 text-sm bg-amber-400 text-[#0d1117] font-semibold rounded hover:bg-amber-300 disabled:opacity-40 transition-colors"
+            className="px-4 py-2 text-sm bg-amber-400 text-[color:var(--c-on-accent)] font-semibold rounded hover:bg-amber-300 disabled:opacity-40 transition-colors"
           >
             Add
           </button>

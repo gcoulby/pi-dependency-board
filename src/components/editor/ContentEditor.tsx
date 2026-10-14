@@ -5,6 +5,7 @@ import { BlockNoteView } from '@blocknote/mantine'
 import '@blocknote/mantine/style.css'
 import { X, BookOpen, Loader2 } from 'lucide-react'
 import { useCardStore } from '../../store/cardStore'
+import { useUiStore } from '../../store/uiStore'
 import { clearSearchCache } from '../../hooks/useSearch'
 import { contentMap, contentDirty, getCurrentFileBlob } from '../../hooks/useAutoSave'
 import { loadCardContent } from '../../file/boardReader'
@@ -20,6 +21,7 @@ interface EditorInnerProps {
 
 function EditorInner({ cardId, initialContent }: EditorInnerProps) {
   const updateCard = useCardStore((s) => s.updateCard)
+  const theme = useUiStore((s) => s.theme)
   const editor = useCreateBlockNote({
     initialContent: initialContent?.length ? initialContent : undefined,
   })
@@ -35,7 +37,7 @@ function EditorInner({ cardId, initialContent }: EditorInnerProps) {
     return unsubscribe
   }, [editor, cardId, updateCard])
 
-  return <BlockNoteView editor={editor} theme="dark" style={{ minHeight: '100%' }} />
+  return <BlockNoteView editor={editor} theme={theme} style={{ minHeight: '100%' }} />
 }
 
 // ── Container — handles async content loading ─────────────────────────────────
@@ -77,21 +79,21 @@ export function ContentEditor({ cardId, onClose }: Props) {
   }, [onClose])
 
   return (
-    <div className="z-50 fixed inset-0 flex flex-col bg-[#0d1117]">
+    <div className="z-50 fixed inset-0 flex flex-col bg-[var(--c-canvas)]">
       {/* Header */}
-      <div className="flex items-center gap-3 bg-[#161b22] px-4 border-[#30363d] border-b h-10 shrink-0">
+      <div className="flex items-center gap-3 bg-[var(--c-surface)] px-4 border-[color:var(--c-border)] border-b h-10 shrink-0">
         <BookOpen size={14} className="text-amber-400" />
-        <span className="font-medium text-[#e6edf3] text-sm truncate">{card?.title}</span>
-        <span className="font-mono text-[#484f58] text-[11px]">· detail</span>
+        <span className="font-medium text-[color:var(--c-text)] text-sm truncate">{card?.title}</span>
+        <span className="font-mono text-[color:var(--c-text-faint)] text-[0.6875rem]">· detail</span>
         <div className="flex-1" />
-        <button onClick={onClose} className="text-[#8b949e] hover:text-[#e6edf3] transition-colors">
+        <button onClick={onClose} className="text-[color:var(--c-text-muted)] hover:text-[color:var(--c-text)] transition-colors">
           <X size={15} />
         </button>
       </div>
 
       {/* Editor area */}
       {!loaded ? (
-        <div className="flex flex-1 justify-center items-center gap-2 text-[#484f58]">
+        <div className="flex flex-1 justify-center items-center gap-2 text-[color:var(--c-text-faint)]">
           <Loader2 size={16} className="animate-spin" />
           <span className="text-sm">Loading…</span>
         </div>

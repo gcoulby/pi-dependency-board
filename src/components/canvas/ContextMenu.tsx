@@ -50,18 +50,18 @@ export function ContextMenu({ x, y, items, onClose }: Props) {
     <div
       ref={ref}
       style={style}
-      className="bg-[#1c2333] border border-[#30363d] rounded-lg shadow-2xl py-1 min-w-[160px] select-none"
+      className="bg-[var(--c-raised)] border border-[color:var(--c-border)] rounded-lg shadow-2xl py-1 min-w-[160px] select-none"
     >
       {items.map((item, i) => (
         <div key={i} className="relative group/item">
-          {item.separator && <div className="my-1 border-t border-[#30363d]" />}
+          {item.separator && <div className="my-1 border-t border-[color:var(--c-border)]" />}
           <button
             onClick={() => { if (item.submenu) return; item.onClick(); onClose(); }}
             className={[
-              'w-full flex items-center gap-2.5 px-3 py-1.5 text-[12px] text-left transition-colors',
+              'w-full flex items-center gap-2.5 px-3 py-1.5 text-[0.75rem] text-left transition-colors',
               item.danger
                 ? 'text-red-400 hover:bg-red-400/10'
-                : 'text-[#e6edf3] hover:bg-[#30363d]',
+                : 'text-[color:var(--c-text)] hover:bg-[var(--c-border)]',
               item.active ? 'font-semibold' : '',
             ].join(' ')}
           >
@@ -72,12 +72,12 @@ export function ContextMenu({ x, y, items, onClose }: Props) {
           </button>
           {item.submenu && (
             <div className="hidden group-hover/item:block absolute left-full top-0 -ml-1 pl-1">
-              <div className="bg-[#1c2333] border border-[#30363d] rounded-lg shadow-2xl py-1 min-w-[150px]">
+              <div className="bg-[var(--c-raised)] border border-[color:var(--c-border)] rounded-lg shadow-2xl py-1 min-w-[150px]">
                 {item.submenu.map((sub, j) => (
                   <button
                     key={j}
                     onClick={() => { sub.onClick(); onClose(); }}
-                    className="w-full flex items-center gap-2.5 px-3 py-1.5 text-[12px] text-left text-[#e6edf3] hover:bg-[#30363d] transition-colors"
+                    className="w-full flex items-center gap-2.5 px-3 py-1.5 text-[0.75rem] text-left text-[color:var(--c-text)] hover:bg-[var(--c-border)] transition-colors"
                   >
                     {sub.icon && <span className="flex-shrink-0">{sub.icon}</span>}
                     <span className="flex-1">{sub.label}</span>

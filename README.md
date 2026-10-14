@@ -27,6 +27,8 @@ Everything lives in a single `.piboard` file on your disk. No server, no cloud, 
 - **Optional AES-256-GCM encryption** with a passphrase
 - **Auto-save**, debounced, which never fires on pan or zoom
 - **draw.io export**: Export in the toolbar writes a `.drawio` file with the same lanes, columns, card positions, sizes and colours as the board, plus a simpler Mermaid flowchart
+- **Dark and light themes** and a text size control (85% to 200%) for cards and the row and column headers, saved per browser. The rest of the interface keeps its size. Cards keep a minimum size and grow to show their whole title when the text no longer fits
+- **Hide the sidebar** (`[`) or take the **canvas full screen** (`F`, `Esc` to leave)
 - **Offline first**: zero network requests at runtime
 
 ---

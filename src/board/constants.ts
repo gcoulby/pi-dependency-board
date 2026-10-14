@@ -10,3 +10,8 @@ export const SLOT_W = CARD_W + CELL_PAD * 2
 export const COL_W = SLOT_W * SLOTS.length
 export const MIN_ROW_H = 140
 export const EXTERNAL_GAP = 40
+
+/** The team label column widens with the card / header text size so long names still fit. */
+export function labelColWidth(scale: number): number {
+  return Math.round(LABEL_COL_W * Math.max(1, 1 + (scale - 1) * 0.6))
+}

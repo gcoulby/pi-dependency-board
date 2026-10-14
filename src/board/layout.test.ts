@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { BoardConfig, Card } from '../types'
 import { EXTERNAL_LANE_ID } from '../types'
-import { CARD_GAP, CARD_H, CELL_PAD, COL_W, SLOT_W, EXTERNAL_GAP, HEADER_H, LABEL_COL_W, MIN_ROW_H } from './constants'
+import { CARD_GAP, CARD_H, CELL_PAD, COL_W, SLOT_W, EXTERNAL_GAP, HEADER_H, LABEL_COL_W, MIN_ROW_H, labelColWidth } from './constants'
 import { cellAt, computeLayout, insertIndexAt, stackHeight } from './layout'
 
 const config: BoardConfig = {
@@ -133,6 +133,21 @@ describe('insertIndexAt', () => {
 
   it('appends when dropped below the last card', () => {
     expect(insertIndexAt(l, cards, cell, top(2) + CARD_H + 20)).toBe(3)
+  })
+})
+
+describe('label column width', () => {
+  it('moves the sprint columns right when the label column is wider', () => {
+    const narrow = computeLayout(config, [])
+    const wide = computeLayout(config, [], undefined, 260)
+    expect(wide.labelW).toBe(260)
+    expect(wide.cols[0].x).toBe(260)
+    expect(wide.width - narrow.width).toBe(260 - LABEL_COL_W)
+  })
+  it('only widens above the default text size', () => {
+    expect(labelColWidth(0.85)).toBe(LABEL_COL_W)
+    expect(labelColWidth(1)).toBe(LABEL_COL_W)
+    expect(labelColWidth(2)).toBeGreaterThan(LABEL_COL_W)
   })
 })
 
